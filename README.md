@@ -11,7 +11,7 @@ Each of the API folder contains docker file for App & Postgres DB.
 
 4. User API Post Request
    =====================
-
+```yaml
 {
   "user_name": "hbhadra",
   "first_name" : "Himanshu",
@@ -27,7 +27,7 @@ Each of the API folder contains docker file for App & Postgres DB.
 
 5. Role API Post Request
    =====================
-
+```yaml
   {
   "role_name": "Engineer",
   "role_name_cd" : "Himanshu",
