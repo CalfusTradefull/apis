@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  nestapp:
+    container_name: customersapp
+    image: tradefull/nestcustomersapp:1.0.0
+    build: .
+    ports:
+      - 3000:3000
+    environment:
+      - DB_TYPE=postgres
+      - PG_HOST=customerdb 
+      - PG_USER=postgres
+      - PG_PASSWORD=postgres
+      - PG_DB=postgres
+      - PG_PORT=5432
+    depends_on:
+      - customerdb
+  customerdb:
+    container_name: customerdb
+    image: postgres:12
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata: {}
