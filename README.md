@@ -1,1 +1,1 @@
-# This Repository contains all the API related to TradeFull.
+# This Repository contains all the APIs related to TradeFull.
