@@ -58,6 +58,7 @@ Each of the API folder contains docker file for App & Postgres DB.
 ```
 7. Customer API Post Request
    =========================
+
 ```json
 {
  "customer_name": "ABC",
@@ -95,6 +96,8 @@ Each of the API folder contains docker file for App & Postgres DB.
 
 }
 ```
+
+
    
 
 
