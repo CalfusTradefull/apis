@@ -90,7 +90,7 @@ Each of the API folder contains docker file for App & Postgres DB.
  "zoominfo_id":"9vb3bg20-86d0-4f5a-ae9c-71x911383b36",
  "expected_arr":"3",
  "expected_gmv":"19",
- "additional_customer_info":{ "key1": "xyz"; "key2": "abc" },
+ "additional_customer_info":{ "key1": "xyz", "key2": "abc" },
  "created_by": "hbhadra",
  "last_updated_by": "Durga"
 
