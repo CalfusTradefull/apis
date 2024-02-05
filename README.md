@@ -24,10 +24,10 @@ Each of the API folder contains docker file for App & Postgres DB.
   "last_updated_by" : "hbhadra"
 
 }
-
+```
 5. Role API Post Request
    =====================
-
+```json
   {
   "role_name": "Engineer",
   "role_name_cd" : "Himanshu",
@@ -40,9 +40,10 @@ Each of the API folder contains docker file for App & Postgres DB.
   "last_updated_by" : "hbhadra"
 
 }
-
+```
 6. User Role API Post Request
    ==========================
+```json
 {
   "user_id" : "6ab8be92-46f0-4f5a-ad9c-71d911383b87",
 	"role_id" : "0f8f795e-7407-4708-a51d-a62efb5fc6e7",
@@ -54,9 +55,10 @@ Each of the API folder contains docker file for App & Postgres DB.
   "created_by" : "hbhadra",
   "last_updated_by" : "hbhadra"
 }
-
+```
 7. Customer API Post Request
    =========================
+```
 {
  "customer_name": "ABC",
  "customer_brand_name": "Ashley",
@@ -92,7 +94,7 @@ Each of the API folder contains docker file for App & Postgres DB.
  "last_updated_by": "Durga"
 
 }
-
+```
    
 
 
