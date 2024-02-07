@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { CustomerprofileService } from './customerprofile.service';
 import { CustomerProfile } from './customerprofile.entity';
 
@@ -8,12 +16,21 @@ export class CustomerprofileController {
     private readonly customerProfileService: CustomerprofileService,
   ) {}
 
+  // Get all customer profiles
+  @Get()
+  async getAllCustomerProfile(): Promise<CustomerProfile[]> {
+    return await this.customerProfileService.getAllCustomerProfile();
+  }
+
+  // Get one customer profile
   @Get(':id')
-  async getCustomerProfile(@Param('id') customer_id: string) {
+  async getCustomerProfile(
+    @Param('id') profile_id: string,
+  ): Promise<CustomerProfile> {
     try {
-      console.log('getCustomerProfile | customer_id:', customer_id);
+      console.log('getCustomerProfile | profile_id:', profile_id);
       const profile =
-        this.customerProfileService.getCustomerProfile(customer_id);
+        this.customerProfileService.getCustomerProfile(profile_id);
       if (!profile) {
         throw new Error('User Profile Not found!');
       } else {
@@ -24,8 +41,11 @@ export class CustomerprofileController {
     }
   }
 
+  // Create customer profile
   @Post()
-  async createCustomerProfile(@Body() profile: CustomerProfile) {
+  async createCustomerProfile(
+    @Body() profile: CustomerProfile,
+  ): Promise<CustomerProfile> {
     try {
       console.log('Triggered');
       console.log(
@@ -42,6 +62,34 @@ export class CustomerprofileController {
     }
   }
 
-  // @Put(':id')
-  // async updateCustomerProfile(@Param() id: string, @Body profile: CustomerProfile) {}
+  // Update customer profile
+  @Put(':id')
+  async updateCustomerProfile(
+    @Param('id') profile_id: string,
+    @Body() profile: CustomerProfile,
+  ): Promise<CustomerProfile> {
+    try {
+      return this.customerProfileService.updateCustomerProfile(
+        profile_id,
+        profile,
+      );
+    } catch (error) {
+      return error;
+    }
+  }
+
+  // Delete customer profile
+  @Delete(':id')
+  async deleteCustomerProfile(@Param('id') profile_id: string): Promise<void> {
+    try {
+      const profile =
+        this.customerProfileService.getCustomerProfile(profile_id);
+      if (!profile) {
+        throw new Error('Customer profile not found');
+      }
+      this.customerProfileService.deleteCustomerProfile(profile_id);
+    } catch (error) {
+      return error;
+    }
+  }
 }

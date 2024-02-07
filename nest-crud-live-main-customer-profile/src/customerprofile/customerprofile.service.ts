@@ -10,9 +10,13 @@ export class CustomerprofileService {
     private customerProfileRepository: Repository<CustomerProfile>,
   ) {}
 
-  async getCustomerProfile(customer_id: string): Promise<CustomerProfile> {
+  async getAllCustomerProfile(): Promise<CustomerProfile[]> {
+    return this.customerProfileRepository.find();
+  }
+
+  async getCustomerProfile(profile_id: string): Promise<CustomerProfile> {
     return await this.customerProfileRepository.findOne({
-      where: { customer_id },
+      where: { profile_id },
     });
   }
 
@@ -21,10 +25,36 @@ export class CustomerprofileService {
   ): Promise<CustomerProfile> {
     try {
       const newProfile = await this.customerProfileRepository.create(profile);
-      console.log(newProfile);
-      const op = await this.customerProfileRepository.save(newProfile);
-      console.log(op);
-      return op;
+      return await this.customerProfileRepository.save(newProfile);
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async updateCustomerProfile(
+    profile_id: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    profile: Partial<CustomerProfile>,
+  ): Promise<CustomerProfile> {
+    try {
+      const userProfile = await this.getCustomerProfile(profile_id);
+      if (userProfile) {
+        await this.customerProfileRepository.update(profile_id, profile);
+        return await this.customerProfileRepository.findOne({
+          where: { profile_id },
+        });
+      } else {
+        throw new Error('Profile does not exist!');
+      }
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+
+  async deleteCustomerProfile(profile_id: string): Promise<void> {
+    try {
+      await this.customerProfileRepository.delete(profile_id);
     } catch (error) {
       return error;
     }
