@@ -17,7 +17,7 @@ export class CustomerProfile {
 
   @ApiProperty({ example: '9' })
   @Column()
-  // numeric  / varchar , tbd
+  // numeric / varchar , tbd
   credit_rating: string;
 
   @ApiProperty({ example: '1000000' })
@@ -66,7 +66,7 @@ export class CustomerProfile {
     example: '2024-02-07',
     description: 'Date of customer profile creation, auto updated',
   })
-  @Column({ type: 'date', default: () => 'NOW()' })
+  @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   create_date: string;
 
   @ApiProperty({ example: 'Admin' })
@@ -77,7 +77,7 @@ export class CustomerProfile {
     example: '2024-02-07',
     description: 'Date of last profile update, auto updated',
   })
-  @Column({ type: 'date', default: () => 'NOW()' })
+  @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   last_update_date: string;
 
   @ApiProperty({ example: 'Admin' })
