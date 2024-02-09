@@ -28,7 +28,6 @@ export class CustomerprofileController {
     @Param('id') profile_id: string,
   ): Promise<CustomerProfile> {
     try {
-      console.log('getCustomerProfile | profile_id:', profile_id);
       const profile =
         this.customerProfileService.getCustomerProfile(profile_id);
       if (!profile) {
@@ -47,15 +46,6 @@ export class CustomerprofileController {
     @Body() profile: CustomerProfile,
   ): Promise<CustomerProfile> {
     try {
-      console.log('Triggered');
-      console.log(
-        process.env.DB_TYPE,
-        process.env.PG_HOST,
-        parseInt(process.env.PG_PORT),
-        process.env.PG_USER,
-        process.env.PG_PASSWORD,
-        process.env.PG_DB,
-      );
       return this.customerProfileService.createCustomerProfile(profile);
     } catch (error) {
       return error;

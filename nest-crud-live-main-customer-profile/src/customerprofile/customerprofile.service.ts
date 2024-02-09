@@ -47,7 +47,6 @@ export class CustomerprofileService {
         throw new Error('Profile does not exist!');
       }
     } catch (error) {
-      console.log(error);
       return error;
     }
   }
