@@ -15,6 +15,7 @@ import {
   ApiResponse,
   ApiParam,
   ApiBody,
+  ApiProperty,
 } from '@nestjs/swagger';
 import { CustomerPreference } from './customer-preferences-entity';
 import { CustomerPreferenceService } from './customer-preferences.service';
@@ -71,6 +72,10 @@ export class CustomerPreferencesController {
     status: 200,
     description: 'Return a customer preference by ID',
     type: CustomerPreference,
+  })
+  @ApiProperty({
+    required: true,
+    description: 'The unique identifier of the customer',
   })
   async getById(@Param('id') id: string): Promise<CustomerPreference> {
     return this.customerPreferenceService.getById(id);

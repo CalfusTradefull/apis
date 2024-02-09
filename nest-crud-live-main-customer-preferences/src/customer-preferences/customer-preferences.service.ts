@@ -7,9 +7,10 @@ import { CustomerPreference } from './customer-preferences-entity';
 
 @Injectable()
 export class CustomerPreferenceService {
+  [x: string]: any;
   constructor(
     @InjectRepository(CustomerPreference)
-    private readonly customerPreferenceRepository: Repository<CustomerPreference>,
+    readonly customerPreferenceRepository: Repository<CustomerPreference>,
   ) {}
 
   async create(
@@ -26,28 +27,25 @@ export class CustomerPreferenceService {
     const customerPreference = await this.customerPreferenceRepository.findOne({
       where: { customer_preference_id: id },
     });
-
     if (!customerPreference) {
-      throw new NotFoundException('Customer preference not found');
+      throw new NotFoundException(
+        'No customer preference found with given ID!',
+      );
     }
-
     return customerPreference;
   }
 
   async updateById(
     id: string,
-    customerPreferenceData: CustomerPreference,
+    customerPreferenceData: Partial<CustomerPreference>,
   ): Promise<CustomerPreference> {
-    await this.getById(id); // Check if the customer preference exists
-
+    await this.getById(id);
     await this.customerPreferenceRepository.update(id, customerPreferenceData);
-
     return this.getById(id);
   }
 
   async deleteById(id: string): Promise<void> {
     const result = await this.customerPreferenceRepository.delete(id);
-
     if (result.affected === 0) {
       throw new NotFoundException('Customer preference not found');
     }

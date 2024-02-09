@@ -5,8 +5,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const options = new DocumentBuilder()
-    .setTitle('TradeFull Customer Address API')
-    .setDescription('customer Address management with the APIs')
+    .setTitle('TradeFull Customer preferences API')
+    .setDescription('customer preferences management with the APIs')
     .setVersion('1.0')
     .addServer('http://localhost:3000/', 'Local environment')
     .addServer('https://staging.tradefull.com/', 'Staging')
