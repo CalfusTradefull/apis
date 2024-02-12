@@ -5,7 +5,7 @@ import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeor
 export class CustomerContacts{
 
     @PrimaryGeneratedColumn("uuid")
-    contact_id:UUID;
+    contact_id:string;
 
     @Column()
     customer_id:string;

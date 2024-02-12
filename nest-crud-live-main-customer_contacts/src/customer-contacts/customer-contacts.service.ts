@@ -15,8 +15,8 @@ export class CustomerContactsService {
             return await this.cusRepo.find();
         }
 
-        async findOne(customer_id: string): Promise<CustomerContacts> {
-         return await this.cusRepo.findOne({ where:{customer_id}})
+        async findOne(contact_id: string): Promise<CustomerContacts> {
+         return await this.cusRepo.findOne({ where:{contact_id}})
         }
 
         async create(contact: CustomerContacts): Promise<CustomerContacts> {
