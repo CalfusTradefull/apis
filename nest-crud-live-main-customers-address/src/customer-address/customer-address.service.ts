@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { customer_address } from './customer-address.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class CustomerAddressService {
@@ -11,14 +11,12 @@ export class CustomerAddressService {
   ) {}
 
   async create(customer: customer_address): Promise<customer_address> {
-    // console.log(customer); // Uncomment for debugging if needed
-    // console.log();
     const newCustomeraddress = this.customerAddress.create(customer);
     return await this.customerAddress.save(newCustomeraddress);
   }
 
   async getAll(limit?: number, offset?: number): Promise<any> {
-    if (limit && offset) {
+    if (limit !== undefined && offset !== undefined) {
       return await this.customerAddress.findAndCount({
         take: limit,
         skip: offset,
@@ -28,7 +26,7 @@ export class CustomerAddressService {
     }
   }
 
-  async getById(id: string): Promise<customer_address | undefined> {
+  async getById(id: string): Promise<customer_address> {
     const address = await this.customerAddress.findOne({
       where: { address_id: id },
     });
@@ -54,11 +52,7 @@ export class CustomerAddressService {
   }
 
   async deleteById(address_id: string): Promise<void> {
-    const options: FindOneOptions<customer_address> = {
-      where: { address_id },
-    };
-    const address = await this.customerAddress.findOne(options);
-    if (!address) throw new NotFoundException('Address not found');
-    await this.customerAddress.delete(address_id);
+    const result = await this.customerAddress.delete(address_id);
+    if (result.affected === 0) throw new NotFoundException('Address not found');
   }
 }

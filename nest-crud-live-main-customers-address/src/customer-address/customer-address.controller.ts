@@ -7,7 +7,6 @@ import {
   Param,
   Put,
   Delete,
-  NotFoundException,
   HttpStatus,
 } from '@nestjs/common';
 import { CustomerAddressService } from './customer-address.service';
@@ -29,17 +28,12 @@ export class CustomerAddressController {
   })
   @ApiBody({ description: 'Create New Customer', type: customer_address })
   async create(@Body() customerAddress: customer_address): Promise<any> {
-    console.log(customerAddress);
-
     try {
       const createdAddress =
         await this.customerAddressService.create(customerAddress);
       return createdAddress;
     } catch (error) {
-      console.error('Error occurred during create:', error);
-
       if (error instanceof QueryFailedError) {
-        console.error(error);
         throw new HttpException(
           error.message,
           HttpStatus.INTERNAL_SERVER_ERROR,
@@ -197,16 +191,10 @@ export class CustomerAddressController {
       await this.customerAddressService.deleteById(id);
       return { success: true };
     } catch (error) {
-      if (error instanceof QueryFailedError) {
-        throw new HttpException(`${error.message}`, HttpStatus.CONFLICT);
-      } else if (error instanceof NotFoundException) {
-        throw new HttpException('Address not found', HttpStatus.NOT_FOUND);
-      } else {
-        throw new HttpException(
-          'Internal Server Error',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
+      throw new HttpException(
+        'Internal Server Error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }
