@@ -95,7 +95,7 @@ export class CustomerPreferencesController {
   })
   async updateById(
     @Param('id') id: string,
-    @Body() customerPreference: CustomerPreference,
+    @Body() customerPreference: Partial<CustomerPreference>,
   ): Promise<CustomerPreference> {
     try {
       return await this.customerPreferenceService.updateById(
