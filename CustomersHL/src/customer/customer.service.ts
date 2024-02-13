@@ -1,4 +1,5 @@
 import { ForbiddenException, Injectable, Inject } from '@nestjs/common';
+import { ClsModule, ClsService } from 'nestjs-cls';
 import { AppConfig } from "../config/AppConfig";
 import { HttpService } from '@nestjs/axios';
 import axios from 'axios';
@@ -10,12 +11,12 @@ import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class CustomerService {
-  constructor(private http: HttpService, @Inject('APP_CONFIG') private appConfig: typeof AppConfig) {}
+  constructor(private http: HttpService, @Inject('APP_CONFIG') private appConfig: typeof AppConfig, private readonly cls: ClsService) {}
   private readonly logger = new Logger('TFHL_CUSTOMER_SERVICE');
   
 
   async getCustomers() {
-    this.logger.log(new Date(Date.now()).toLocaleString() + ' Retreving all customers');
+    this.logger.log(this.cls.getId() + " " + new Date(Date.now()).toLocaleString() + ' Retreving all customers');
     const customers = this.http
       .get(this.appConfig.DAL_URL + 'customers')
       .pipe(
@@ -32,7 +33,7 @@ export class CustomerService {
 
   async getCustomer(customer_id: string) {
     
-    this.logger.log(new Date(Date.now()).toLocaleString() + ' Get Customer by ID: ' + customer_id);
+    this.logger.log(this.cls.getId() + " " + new Date(Date.now()).toLocaleString() + ' Get Customer by ID: ' + customer_id);
     const customerResponse = await fetch(this.appConfig.DAL_URL + 'customers/'.concat(customer_id));
     const customerData = await customerResponse.json();
     return customerData

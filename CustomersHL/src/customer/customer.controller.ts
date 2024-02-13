@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Put, Param, Delete } from '@nestjs/common';
+import { ClsModule, ClsService } from 'nestjs-cls';
 import { CustomerService } from './customer.service';
 import { CustomerDTO } from './customer.entity';
 import { Logger } from '@nestjs/common';
@@ -6,19 +7,19 @@ import { Logger } from '@nestjs/common';
 @Controller()
 export class CustomerController {
   
-  constructor(private customerService: CustomerService) {}
+  constructor(private customerService: CustomerService, private readonly cls: ClsService) {}
   private readonly logger = new Logger('TFHL_CUSTOMER_CONTROLLER');
 
   @Get('customers/')
   getCustomers() {
-    this.logger.log(new Date(Date.now()).toLocaleString() + ' Retreving all customers');
+    this.logger.log(this.cls.getId() + " " + new Date(Date.now()).toLocaleString() + ' Retreving all customers');
     return this.customerService.getCustomers();
   }
 
   @Get('customer/:customerid')
   getCustomerByCustomerID(@Param('customerid') customerid: string) {
 
-    this.logger.log(new Date(Date.now()).toLocaleString() + ' Get Customer by ID: ' + customerid);
+    this.logger.log(this.cls.getId() + " " + new Date(Date.now()).toLocaleString() + ' Get Customer by ID: ' + customerid);
     return this.customerService.getCustomer(customerid);
   }
 
