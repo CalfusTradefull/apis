@@ -83,25 +83,5 @@ describe('CustomerprofileController', () => {
       const result = await controller.deleteCustomerProfile(profile_id);
       expect(result).toEqual(null);
     });
-
-    // it('should check for Customer Profile existence', async () => {
-    //   const profile_id = '12345';
-    //   const type = 'profile_id';
-    //   jest
-    //     .spyOn(controller, 'getCustomerProfile')
-    //     .mockResolvedValue(mockProfile);
-    //   const result = await controller.getCustomerProfile(type, profile_id);
-    //   expect(result).toEqual(mockProfile);
-    // });
-
-    // it('should throw exception if Profile does not exist', async () => {
-    //   const profile_id = '12345';
-    //   const type = 'profile_id';
-    //   jest
-    //     .spyOn(controller, 'getCustomerProfile')
-    //     .mockResolvedValue(mockProfile);
-    //   const result = await controller.getCustomerProfile(type, profile_id);
-    //   expect(result).toEqual(mockProfile);
-    // });
   });
 });
