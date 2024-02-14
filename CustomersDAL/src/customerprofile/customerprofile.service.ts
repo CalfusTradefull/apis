@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CustomerProfile } from './customerprofile.entity';
 import { Repository } from 'typeorm';
@@ -14,10 +14,28 @@ export class CustomerprofileService {
     return this.customerProfileRepository.find();
   }
 
-  async getCustomerProfile(profile_id: string): Promise<CustomerProfile> {
-    return await this.customerProfileRepository.findOne({
-      where: { profile_id },
-    });
+  async getCustomerProfileByProfileId(profile_id: string,): Promise<CustomerProfile> {
+      const profile = await this.customerProfileRepository.findOne({
+        where: { profile_id },
+      });
+      if (!profile) {
+        throw new NotFoundException(
+          'No customer profile found with given profile_id!',
+        );
+      }
+      return profile;
+  }
+
+  async getCustomerProfileByCustomerId(customer_id: string,): Promise<CustomerProfile> {
+      const profile = await this.customerProfileRepository.findOne({
+        where: { customer_id },
+      });
+      if (!profile) {
+        throw new NotFoundException(
+          'No customer profile found with given customer_id!',
+        );
+      }
+      return profile;
   }
 
   async createCustomerProfile(
@@ -33,21 +51,15 @@ export class CustomerprofileService {
 
   async updateCustomerProfile(
     profile_id: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     profile: Partial<CustomerProfile>,
   ): Promise<CustomerProfile> {
     try {
-      const userProfile = await this.getCustomerProfile(profile_id);
-      if (userProfile) {
-        await this.customerProfileRepository.update(profile_id, profile);
-        return await this.customerProfileRepository.findOne({
-          where: { profile_id },
-        });
-      } else {
-        throw new Error('Profile does not exist!');
-      }
+      await this.getCustomerProfileByProfileId(profile_id);
+      await this.customerProfileRepository.update(profile_id, profile);
+      return await this.customerProfileRepository.findOne({
+        where: { profile_id },
+      });
     } catch (error) {
-      console.log(error);
       return error;
     }
   }

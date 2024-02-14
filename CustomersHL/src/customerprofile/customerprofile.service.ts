@@ -1,7 +1,7 @@
 import { AppConfig } from "../config/AppConfig";
-import { ForbiddenException, Injectable, Inject } from '@nestjs/common';
+import { ForbiddenException, Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { catchError, map, lastValueFrom } from 'rxjs';
 import fetch from 'node-fetch';
 import { Logger } from '@nestjs/common';
@@ -27,21 +27,49 @@ export class CustomerProfileService {
     return customers;
   }
 
-
   async getProfileByProfileID(profileid: string) {
-    const customerprofileResponse = await fetch(this.appConfig.DAL_URL + 'customerprofile/'.concat(profileid));
-    const customerprofileData = await customerprofileResponse.json();
-    return customerprofileData
-  }
-
-  async getProfileByCustomerID(customer_id: string) {
-
-    const response = await fetch(this.appConfig.DAL_URL + 'profiles/profile/'.concat(customer_id));
-    const data = await response.json();
-    return data
-  }
-
-
-    
+    try {
+        const customerprofileResponse = await axios.get(this.appConfig.DAL_URL + 'customerprofile/profileid/'.concat(profileid));
+        if (customerprofileResponse.data && customerprofileResponse.data.message === 'No customer profile found with given profile_id!') {
+            throw new NotFoundException(customerprofileResponse.data);
+        }
+        return customerprofileResponse.data;
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            const axiosError = error as AxiosError;
+            if (axiosError.response?.status === 404) {
+                throw new NotFoundException('No customer profile found with given profile_id!');
+            } else if (axiosError.code === 'ECONNREFUSED') {  
+              throw new ForbiddenException('API not available');
+            } else {
+                throw error;
+            }
+        } else {
+            throw error;
+        }
+    }
 }
 
+async getProfileByCustomerID(customerid: string) {
+  try {
+    const customerprofileResponse = await axios.get(this.appConfig.DAL_URL + 'customerprofile/customerid/'.concat(customerid));
+    if(customerprofileResponse.data && customerprofileResponse.data.message === 'No customer profile found with given customer_id!') {
+      throw new NotFoundException(customerprofileResponse.data);
+    }
+    return customerprofileResponse.data;
+  } catch (error) {
+      if (axios.isAxiosError(error)) {
+          const axiosError = error as AxiosError;
+          if (axiosError.response?.status === 404) {
+              throw new NotFoundException('No customer profile found with given customerid!');
+          } else if (axiosError.code === 'ECONNREFUSED') {  
+            throw new ForbiddenException('API not available');
+          } else {
+              throw error;
+          }
+      } else {
+          throw error;
+      }
+  }
+}
+}
