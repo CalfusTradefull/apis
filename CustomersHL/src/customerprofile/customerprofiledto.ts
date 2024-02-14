@@ -42,7 +42,7 @@ export class CustomerProfileDTO {
 
   @ApiProperty({ example: { key1: 'value', key2: 'value' } })
   additional_profile_info: {
-    [key: string]: JSON;
+    [key: string]: string;
   };
 
   @ApiProperty({
