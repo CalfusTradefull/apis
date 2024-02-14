@@ -1,32 +1,49 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CustomersController } from './customers.controller';
-import { CustomersService } from './customers.service';
-import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { Customer } from './customer.entity';
-import { Repository } from 'typeorm';
-import { getRepositoryToken } from '@nestjs/typeorm';
+import {  NotFoundException, ForbiddenException } from '@nestjs/common';
+import { CustomerService } from './customer.service';
+import { ClsService } from 'nestjs-cls';
+import { AppConfig } from '../config/AppConfig';
+import axios from 'axios';
+import fetch from 'node-fetch';
+import { HttpService } from '@nestjs/axios';
 
-describe('CustomersController', () => {
-  let controller: CustomersController;
-  let customersService: CustomersService;
-  let repository: Repository<Customer>;
+jest.mock('axios');
+jest.mock('node-fetch');
 
+describe('CustomerService', () => {
+  let service: CustomerService;
+  let httpService: HttpService;
+
+  const mockClsService = {
+    getId: jest.fn(),
+  };
+
+  const mockAppConfig = {
+    DAL_URL:'https://example.com/',
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [CustomersController],
-      providers: [CustomersService,{
-        provide: getRepositoryToken(Customer),
-        useClass: Repository,
-      }],
+      providers: [
+        CustomerService,
+        HttpService,
+        { provide: ClsService, useValue: mockClsService },
+        { provide: 'APP_CONFIG', useValue: AppConfig },
+        {
+            provide: HttpService,
+            useValue: {
+              get: jest.fn(),
+            },
+          }
+      ],
     }).compile();
 
-    controller = module.get<CustomersController>(CustomersController);
-    customersService = module.get<CustomersService>(CustomersService);
+    service = module.get<CustomerService>(CustomerService);
+    httpService = module.get<HttpService>(HttpService);
   });
 
-  describe('findAll', () => {
-    it('should return a list of customers', async () => {
+  describe('getCustomers', () => {
+    it('should retrieve customers successfully', async () => {
       const mockCustomers = [ {
         "customer_id": "efb444e4-4b7d-44d0-b12b-06a97006ea95",
         "customer_name": "ABC Corporation",
@@ -71,18 +88,24 @@ describe('CustomersController', () => {
         "last_update_date":new Date(),
         "last_updated_by": "JaneDoe"
       }];
-      jest.spyOn(customersService, 'findall').mockResolvedValue(mockCustomers);
-      const result = await controller.findAll();
+
+      jest.spyOn(axios, 'get').mockResolvedValue({ data: mockCustomers });
+      const result = await service.getCustomers();
       expect(result).toEqual(mockCustomers);
     });
+    it('should handle 403 Forbidden error', async () => {
+      jest.spyOn(axios, 'get').mockRejectedValue({ response: { status: 403 } });
+      await expect(service.getCustomers()).rejects.toThrowError(ForbiddenException);
+    });
 
-    it('should handle errors and throw InternalServerErrorException', async () => {
-      jest.spyOn(customersService, 'findall').mockRejectedValue(new Error('Test error'));
-      await expect(async () => await controller.findAll()).rejects.toThrowError(
-        InternalServerErrorException,
-      );
+    it('should handle other errors', async () => {
+      jest.spyOn(axios, 'get').mockRejectedValue(new Error('Some error'));
+
+      await expect(service.getCustomers()).rejects.toThrowError('Some error');
     });
   });
 
 
+
 });
+

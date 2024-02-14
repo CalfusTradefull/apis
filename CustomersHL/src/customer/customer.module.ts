@@ -1,6 +1,7 @@
 import { AppConfig } from "../config/AppConfig";
 import { ClsModule } from 'nestjs-cls';
 import { v4 as uuidv4 } from 'uuid';
+
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { CustomerService } from './customer.service';
