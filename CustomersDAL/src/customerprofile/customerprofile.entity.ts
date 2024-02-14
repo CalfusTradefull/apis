@@ -63,7 +63,7 @@ export class CustomerProfile {
   additional_profile_info: JSON;
 
   @ApiProperty({
-    example: '2024-02-07',
+    example: '2024-02-13 18:19:56.798449+05:30',
     description: 'Date of customer profile creation, auto updated',
   })
   @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
@@ -74,7 +74,7 @@ export class CustomerProfile {
   created_by: string;
 
   @ApiProperty({
-    example: '2024-02-07',
+    example: '2024-02-13 18:19:56.798449+05:30',
     description: 'Date of last profile update, auto updated',
   })
   @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })

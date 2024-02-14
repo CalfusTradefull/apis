@@ -11,8 +11,9 @@ import {
 } from '@nestjs/common';
 import { CustomerprofileService } from './customerprofile.service';
 import { CustomerProfile } from './customerprofile.entity';
-import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Customer Profile')
 @Controller('customerprofile')
 export class CustomerprofileController {
   constructor(
