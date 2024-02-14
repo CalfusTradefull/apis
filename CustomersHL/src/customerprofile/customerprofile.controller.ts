@@ -16,7 +16,6 @@ export class CustomerProfileController {
   getProfileByProfileID(@Param('profileid') profileid: string) {
     return this.customerprofileService.getProfileByProfileID(profileid);
   }
-
   
   @Get('customer/profile/:customerid')
   getProfileByCustomerID(@Param('customerid') customerid: string) {
@@ -24,5 +23,3 @@ export class CustomerProfileController {
   }
   
 }
-
-
