@@ -29,9 +29,7 @@ export class CustomerProfileService {
 
   async getProfileByProfileID(profileid: string) {
     try {
-        console.log(profileid);
         const customerprofileResponse = await axios.get(this.appConfig.DAL_URL + 'customerprofile/profileid/'.concat(profileid));
-        console.log('!!!!', customerprofileResponse);
         if (customerprofileResponse.data && customerprofileResponse.data.message === 'No customer profile found with given profile_id!') {
             throw new NotFoundException(customerprofileResponse.data);
         }
