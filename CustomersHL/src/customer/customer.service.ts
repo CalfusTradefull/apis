@@ -1,8 +1,8 @@
-import { ForbiddenException, Injectable, Inject } from '@nestjs/common';
+import { ForbiddenException, Injectable, Inject, InternalServerErrorException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { ClsModule, ClsService } from 'nestjs-cls';
 import { AppConfig } from "../config/AppConfig";
 import { HttpService } from '@nestjs/axios';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { catchError, map, lastValueFrom } from 'rxjs';
 import fetch from 'node-fetch';
 import { CustomerDTO } from './customer.entity';
@@ -31,12 +31,27 @@ export class CustomerService {
   }
 
   async getCustomer(customer_id: string) {
-    
-    this.logger.log(this.cls.getId() + " " + new Date(Date.now()).toLocaleString() + ' Get Customer by ID: ' + customer_id);
-    const customerResponse = await fetch(this.appConfig.DAL_URL + 'customers/'.concat(customer_id));
-    const customerData = await customerResponse.json();
-    return customerData
+    try {
+      this.logger.log(this.cls.getId() + " " + new Date(Date.now()).toLocaleString() + ' Get Customer by ID: ' + customer_id);
+      const response = await axios.get(this.appConfig.DAL_URL + 'customers/' + customer_id);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ForbiddenException) {
+        throw new ForbiddenException('API not available');
+      } else if (error.isAxiosError) {
+        const axiosError = error as AxiosError;
+        if (axiosError.response?.status === 404) {
+          throw new NotFoundException(`Customer with ID ${customer_id} not found`);
+        } else if(axiosError.response?.status === 400) {
+          throw new BadRequestException(axiosError.response.data);
+        }
+      } else {
+        this.logger.error(`An error occurred while trying to retrieve customer by ID ${customer_id}: ${error.message}`);
+        throw error;
+      }
+    }
   }
+
 
   async getAddress(customer_id: string) {
 

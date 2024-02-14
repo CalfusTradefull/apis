@@ -1,6 +1,6 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, Param } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { Customer } from './customer.entity';
 
 @Injectable()
@@ -19,8 +19,17 @@ export class CustomersService {
     }
   }
   // get one customer
-  async findOne(customer_id: string): Promise<Customer> {
-    return await this.customersRepository.findOne({ where : { customer_id } });
+  async findOne( customer_id: string): Promise<Customer> {
+      try {
+        const customer = await this.customersRepository.findOne({ where: { customer_id } });
+        return customer;
+      } catch (error) {
+         const postgresErrorMessage = error.message; 
+         if (postgresErrorMessage.includes('invalid input syntax for type uuid')) {
+          throw new BadRequestException(postgresErrorMessage);
+        }
+        throw new InternalServerErrorException('Error occurred while fetching customer');
+      }
   }
 
   // get one customer

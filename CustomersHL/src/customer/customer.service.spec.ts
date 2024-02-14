@@ -105,7 +105,50 @@ describe('CustomerService', () => {
     });
   });
 
+/**
+ * FindOne
+ */
 
+it('should retrieve customer successfully', async () => {
+    const mockCustomerData = { customer_id: '1', customer_name: 'Test Customer' };
+
+    jest.spyOn(httpService, 'get').mockReturnValueOnce({
+      toPromise: jest.fn(() => Promise.resolve({ data: mockCustomerData })),
+    } as any);
+
+    const result = await service.getCustomer('1');
+
+    expect(result).toEqual(mockCustomerData);
+    expect(mockLogger.log).toHaveBeenCalledWith('mockedId 2024-02-14T12:34:56 Get Customer by ID: 1');
+  });
+
+  it('should handle 404 error (Not Found)', async () => {
+    jest.spyOn(httpService, 'get').mockReturnValueOnce({
+      toPromise: jest.fn(() => Promise.reject({ response: { status: 404 } } as AxiosError)),
+    } as any);
+
+    await expect(service.getCustomer('1')).rejects.toThrowError(NotFoundException);
+    expect(mockLogger.log).toHaveBeenCalledWith('mockedId 2024-02-14T12:34:56 Get Customer by ID: 1');
+  });
+
+  it('should handle other Axios errors', async () => {
+    jest.spyOn(httpService, 'get').mockReturnValueOnce({
+      toPromise: jest.fn(() => Promise.reject({ response: { status: 500 } } as AxiosError)),
+    } as any);
+
+    await expect(service.getCustomer('1')).rejects.toThrowError(InternalServerErrorException);
+    expect(mockLogger.log).toHaveBeenCalledWith('mockedId 2024-02-14T12:34:56 Get Customer by ID: 1');
+    expect(mockLogger.error).toHaveBeenCalledWith('An error occurred while trying to retrieve customer by ID 1: undefined');
+  });
+
+  it('should handle ForbiddenException', async () => {
+    jest.spyOn(httpService, 'get').mockReturnValueOnce({
+      toPromise: jest.fn(() => Promise.reject({ response: { status: 403 } } as AxiosError)),
+    } as any);
+
+    await expect(service.getCustomer('1')).rejects.toThrowError(ForbiddenException);
+    expect(mockLogger.log).toHaveBeenCalledWith('mockedId 2024-02-14T12:34:56 Get Customer by ID: 1');
+  });
 
 });
 
