@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Customer } from './customer.entity';
@@ -12,9 +12,12 @@ export class CustomersService {
 
   // get all customers
   async findall(): Promise<Customer[]> {
-    return await this.customersRepository.find();
+    try {
+      return await this.customersRepository.find();
+    } catch (error) {
+      throw new InternalServerErrorException('Error occurred while fetching customers');
+    }
   }
-
   // get one customer
   async findOne(customer_id: string): Promise<Customer> {
     return await this.customersRepository.findOne({ where : { customer_id } });

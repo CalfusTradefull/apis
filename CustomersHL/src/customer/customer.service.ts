@@ -16,19 +16,18 @@ export class CustomerService {
   
 
   async getCustomers() {
-    this.logger.log(this.cls.getId() + " " + new Date(Date.now()).toLocaleString() + ' Retreving all customers');
-    const customers = this.http
-      .get(this.appConfig.DAL_URL + 'customers')
-      .pipe(
-        map((res) => res.data)
-      )
-      .pipe(
-        catchError(() => {
-          throw new ForbiddenException(' API not available');
-        }),
-      );
-
-    return customers;
+    try {
+      this.logger.log(this.cls.getId() +' ' +new Date(Date.now()).toLocaleString() +' Retrieving all customers',);
+      const response = await axios.get(this.appConfig.DAL_URL + 'customers');
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.status === 403) {
+        throw new ForbiddenException('API not available');
+      } else {
+       this.logger.log(`An error occurred while trying to retrieve customers: ${JSON.stringify(error)}`);
+        throw error;
+      }
+    }
   }
 
   async getCustomer(customer_id: string) {
