@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CustomerProfile } from './customerprofile.entity';
 import { Repository } from 'typeorm';
@@ -15,27 +15,43 @@ export class CustomerprofileService {
   }
 
   async getCustomerProfileByProfileId(profile_id: string,): Promise<CustomerProfile> {
-      const profile = await this.customerProfileRepository.findOne({
-        where: { profile_id },
-      });
-      if (!profile) {
-        throw new NotFoundException(
-          'No customer profile found with given profile_id!',
-        );
+      try {
+        const profile = await this.customerProfileRepository.findOne({ where: { profile_id },});
+        if (!profile) {
+          throw new NotFoundException(
+            'No customer profile found with given profile_id!',
+          );
+        }
+        return profile;
+      } catch (error) {
+        if (error instanceof NotFoundException) {
+          throw error;
+        } else {
+          console.log(error);
+          throw new InternalServerErrorException('Error while fetching customer profile');
+        }
       }
-      return profile;
   }
 
   async getCustomerProfileByCustomerId(customer_id: string,): Promise<CustomerProfile> {
-      const profile = await this.customerProfileRepository.findOne({
-        where: { customer_id },
-      });
-      if (!profile) {
-        throw new NotFoundException(
-          'No customer profile found with given customer_id!',
-        );
+      try {
+        const profile = await this.customerProfileRepository.findOne({
+          where: { customer_id },
+        });
+        if (!profile) {
+          throw new NotFoundException(
+            'No customer profile found with given customer_id!',
+          );
+        }
+        return profile;
+      } catch (error) {
+        if (error instanceof NotFoundException) {
+          throw error;
+        } else {
+          console.log(error);
+          throw new InternalServerErrorException('Error while fetching customer profile');
+        }
       }
-      return profile;
   }
 
   async createCustomerProfile(
@@ -54,13 +70,17 @@ export class CustomerprofileService {
     profile: Partial<CustomerProfile>,
   ): Promise<CustomerProfile> {
     try {
-      await this.getCustomerProfileByProfileId(profile_id);
-      await this.customerProfileRepository.update(profile_id, profile);
-      return await this.customerProfileRepository.findOne({
-        where: { profile_id },
-      });
+      const result = await this.customerProfileRepository.update(profile_id, profile);
+      if (result.affected === 0) {
+        throw new NotFoundException('No customer profile found with given profile_id!!');
+      }
+      return await this.customerProfileRepository.findOne({where: { profile_id }});
     } catch (error) {
-      return error;
+      if (error instanceof NotFoundException) {
+        throw error;
+      } else {
+        throw new InternalServerErrorException('Failed to update customer profile');
+      }
     }
   }
 
@@ -68,7 +88,7 @@ export class CustomerprofileService {
     try {
       await this.customerProfileRepository.delete(profile_id);
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 }
