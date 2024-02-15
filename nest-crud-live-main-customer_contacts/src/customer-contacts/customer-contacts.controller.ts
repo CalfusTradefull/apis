@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put } from '@nestjs/common';
 import { CustomerContactsService } from './customer-contacts.service';
 import { CustomerContacts } from './customer-contact.entity';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { error, log } from 'console';
 
 @Controller('customer-contacts')
 @ApiTags('Customer-Contacts')
@@ -18,17 +19,12 @@ export class CustomerContactsController {
     }
 
     // Get a single entries
-    @Get('onlyone/:id')
+    @Get('findOne/:id')
     @ApiOperation({ summary: 'Get only single Customer Contact' })
     @ApiParam({ name: 'id', type: String })
     @ApiResponse({ status: 200, type: CustomerContacts })
     async findOne(@Param('id') contact_id: string): Promise<CustomerContacts>{
-        const result= await this.cusconserv.findOne(contact_id);
-        if (!result) {
-            throw new Error('Customer Contact not found');
-          } else {
-            return result;
-          }
+      return await this.cusconserv.findOne(contact_id);
     }
 
     @Post('create')
@@ -44,7 +40,8 @@ export class CustomerContactsController {
     @ApiOperation({ summary: 'Update Customer Contact' })
     @ApiParam({ name: 'id', type: String })
     @ApiBody({ type: CustomerContacts })
-    async update(@Param('id') cus_id: string, @Body() contact:CustomerContacts ): Promise<CustomerContacts> {
+    @ApiResponse({status:200})
+    async update(@Param('id') cus_id: string, @Body() contact:Partial<CustomerContacts> ): Promise<CustomerContacts> {
     return this.cusconserv.update(cus_id, contact);
     }
 
@@ -53,11 +50,11 @@ export class CustomerContactsController {
     @ApiOperation({ summary: 'Customer Customer profiles' })
     @ApiParam({ name: 'id', type: String })
     async delete(@Param('id') contact_id: string): Promise<void> {
-    const role = await this.cusconserv.findOne(contact_id);
-    if (!role) {
-      throw new Error('Customer contact not found');
-    }
-    return this.cusconserv.delete(contact_id);
+      const role = await this.cusconserv.findOne(contact_id);
+      if (!role) {
+        throw new NotFoundException('Customer contact not found');
+      }
+      return this.cusconserv.delete(contact_id);
   }
 
 }
