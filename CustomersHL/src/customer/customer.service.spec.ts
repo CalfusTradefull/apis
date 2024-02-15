@@ -142,18 +142,14 @@ describe("CustomerService", () => {
       ).rejects.toThrowError(NotFoundException);
     });
 
-    //   it('should handle other Axios errors', async () => {
-    //     jest.spyOn(axios, 'get').mockReturnValueOnce({
-    //       toPromise: jest.fn(() => Promise.reject({ response: { status: 500 } } as AxiosError)),
-    //     } as any);
-
-    //     await expect(service.getCustomer('efb444e4-4b7d-44d0-b12b-06a97006ea91')).rejects.toThrowError(InternalServerErrorException);
-
-    //   });
+    it('should handle InternalServerErrorException', () => {
+        jest.spyOn(axios, 'get').mockRejectedValue(new Error('Some internal server error'));
+        return expect(service.getCustomer('efb444e4-4b7d-44d0-b12b-06a97006ea91')).rejects.toThrowError(Error);
+      });
 
       it('should handle ForbiddenException', async () => {
           jest.spyOn(axios, 'get').mockRejectedValueOnce(new ForbiddenException);
-          await expect(service.getCustomer('efb444e4-4b7d-44d0-b12b-06a97006ea95').catch()).rejects.toThrowError(ForbiddenException)
+          await expect(service.getCustomer('efb444e4-4b7d-44d0-b12b-06a97006ea95')).rejects.toThrowError(ForbiddenException)
       });
   });
 });

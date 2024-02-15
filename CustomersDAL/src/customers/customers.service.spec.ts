@@ -83,7 +83,9 @@ describe('CustomersService', () => {
     });
   });
 
-
+/**
+ * findOne
+ */
   describe('findOne', () => {
     it('should return the customer if found', async () => {
       jest.spyOn(repository, 'findOne').mockResolvedValue(mockCustomers);
@@ -97,7 +99,6 @@ describe('CustomersService', () => {
     });
 
     it('should throw null return if customer is not found', async () => {
-      const invalidUuidError = new Error('invalid input syntax for type uuid');
       jest.spyOn(repository, 'findOne').mockResolvedValue(null);
       await expect(service.findOne('invalid-uuid')).resolves.toEqual(null);
     });

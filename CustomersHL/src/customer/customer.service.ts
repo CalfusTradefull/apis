@@ -44,6 +44,9 @@ export class CustomerService {
           throw new NotFoundException(`Customer with ID ${customer_id} not found`);
         } else if (axiosError.response?.status === 400) {
           throw new BadRequestException(axiosError.response.data);
+        }else{
+          this.logger.error(`An error occurred while trying to retrieve customer by ID ${customer_id}: ${error.message}`);
+          throw error;
         }
       } else {
         this.logger.error(`An error occurred while trying to retrieve customer by ID ${customer_id}: ${error.message}`);
