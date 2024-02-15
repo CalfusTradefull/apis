@@ -25,7 +25,7 @@ export class CustomerService {
         throw new ForbiddenException('API not available');
       } else {
        this.logger.log(`An error occurred while trying to retrieve customers: ${JSON.stringify(error)}`);
-        throw error;
+        throw new Error(error.message || 'Server error');
       }
     }
   }
@@ -42,7 +42,7 @@ export class CustomerService {
         const axiosError = error as AxiosError;
         if (axiosError.response?.status === 404) {
           throw new NotFoundException(`Customer with ID ${customer_id} not found`);
-        } else if(axiosError.response?.status === 400) {
+        } else if (axiosError.response?.status === 400) {
           throw new BadRequestException(axiosError.response.data);
         }
       } else {
