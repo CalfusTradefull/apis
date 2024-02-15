@@ -3,6 +3,8 @@ import {
   NotFoundException,
   ForbiddenException,
   InternalServerErrorException,
+  HttpException,
+  HttpStatus,
 } from "@nestjs/common";
 import { CustomerService } from "./customer.service";
 import { ClsService } from "nestjs-cls";
@@ -10,6 +12,7 @@ import { AppConfig } from "../config/AppConfig";
 import axios, { AxiosError } from "axios";
 import fetch from "node-fetch";
 import { HttpService } from "@nestjs/axios";
+import { CustomerDTO } from "./customer.entity";
 
 jest.mock("axios");
 jest.mock("node-fetch");
@@ -142,14 +145,101 @@ describe("CustomerService", () => {
       ).rejects.toThrowError(NotFoundException);
     });
 
-    it('should handle InternalServerErrorException', () => {
-        jest.spyOn(axios, 'get').mockRejectedValue(new Error('Some internal server error'));
-        return expect(service.getCustomer('efb444e4-4b7d-44d0-b12b-06a97006ea91')).rejects.toThrowError(Error);
-      });
+    it("should handle InternalServerErrorException", () => {
+      jest
+        .spyOn(axios, "get")
+        .mockRejectedValue(new Error("Some internal server error"));
+      return expect(
+        service.getCustomer("efb444e4-4b7d-44d0-b12b-06a97006ea91")
+      ).rejects.toThrowError(Error);
+    });
 
-      it('should handle ForbiddenException', async () => {
-          jest.spyOn(axios, 'get').mockRejectedValueOnce(new ForbiddenException);
-          await expect(service.getCustomer('efb444e4-4b7d-44d0-b12b-06a97006ea95')).rejects.toThrowError(ForbiddenException)
+    it("should handle ForbiddenException", async () => {
+      jest.spyOn(axios, "get").mockRejectedValueOnce(new ForbiddenException());
+      await expect(
+        service.getCustomer("efb444e4-4b7d-44d0-b12b-06a97006ea95")
+      ).rejects.toThrowError(ForbiddenException);
+    });
+  });
+
+  /**
+   * Create customers
+   */
+  describe("Create", () => {
+    const mockCustomerDTO: CustomerDTO = {
+      customer_name: "ABC Corporation",
+      customer_brand_name: "ABC Brand",
+      tf_customer_number: "TF123",
+      erp_account_number: "ERP456",
+      customer_type: "Business",
+      customer_status: "Active",
+      customer_category_id: "Category123",
+      tax_identifier_number: "TIN789",
+      customer_since_dt: "2022-01-01",
+      parent_customer_id: "Parent456",
+      doing_business_as: "ABC Corp",
+      retail_outlet_flg: true,
+      is_b2b_flg: true,
+      is_multi_brand_flg: true,
+      tier_id: "Tier1",
+      region_id: "Region123",
+      lifecycle_stage_id: "Stage456",
+      sic_code: "SIC789",
+      sic_code_type: "TypeA",
+      naics_code: "NAICS123",
+      naics_code_descr: "Description for NAICS123",
+      stock_ticker: "ABC",
+      logistics_fulfillment:
+        '{"pick_pack_ship":"Warehouse123","ship_station":"ShipStation456","wms":"WMS789"}',
+      cis_id: "CIS789",
+      duns_number: "DUNS456",
+      demandbase_id: "Demandbase789",
+      zoominfo_id: "ZoomInfo456",
+      expected_arr: "2022-02-01",
+      expected_gmv: "100000",
+      additional_customer_info: '{"key1":"value1","key2":"value2"}',
+      created_by: "JohnDoe",
+      last_updated_by: "JaneDoe",
+    };
+    it("should create a new customer successfully", async () => {
+      const axiosPostSpy = jest.spyOn(axios, "post").mockResolvedValue({
+        data: mockCustomerDTO,
       });
+      const result = await service.create(mockCustomerDTO);
+      expect(result).toEqual(mockCustomerDTO);
+      expect(axiosPostSpy).toHaveBeenCalledWith(
+        expect.any(String),
+        mockCustomerDTO,
+        expect.any(Object)
+      );
+    });
+
+    it("should handle 400 Bad Request error", async () => {
+      const axiosPostSpy = jest.spyOn(axios, "post").mockRejectedValue({
+        response: { status: 400 },
+      } as AxiosError);
+      await expect(service.create(mockCustomerDTO)).rejects.toThrowError(
+        HttpException
+      );
+      expect(axiosPostSpy).toHaveBeenCalledWith(
+        expect.any(String),
+        mockCustomerDTO,
+        expect.any(Object)
+      );
+    });
+    it("should handle 404 Not Found error", async () => {
+      const axiosPostSpy = jest.spyOn(axios, "post").mockRejectedValue({
+        response: { status: 404 },
+      } as AxiosError);
+
+      await expect(service.create(mockCustomerDTO)).rejects.toThrowError(
+        HttpException
+      );
+      expect(axiosPostSpy).toHaveBeenCalledWith(
+        expect.any(String),
+        mockCustomerDTO,
+        expect.any(Object)
+      );
+    });
   });
 });

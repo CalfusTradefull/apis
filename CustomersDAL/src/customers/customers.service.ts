@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, InternalServerErrorException, NotFound
 import { InjectRepository } from '@nestjs/typeorm';
 import { QueryFailedError, Repository } from 'typeorm';
 import { Customer } from './customer.entity';
+import { error } from 'console';
 
 @Injectable()
 export class CustomersService {
@@ -32,15 +33,34 @@ export class CustomersService {
       }
   }
 
-  // get one customer
+  /**
+   * get one customer
+   */
+  
   async findByName(customer_name: string): Promise<Customer> {
     return await this.customersRepository.findOne({ where : { customer_name } })
   }
 
-  //create customer
+/**
+ *  create customer
+ */
+
   async create(customer: Customer): Promise<Customer> {
-    const newCustomer = this.customersRepository.create(customer);
-    return await this.customersRepository.save(newCustomer);
+    try {
+      const newCustomer = this.customersRepository.create(customer);
+      const createdCustomer = await this.customersRepository.save(newCustomer);
+      if(!createdCustomer){
+        throw new error( 'Could not create customer')
+      }
+      return createdCustomer;
+    } catch (error) {
+      const postgresErrorMessage = error.message; 
+      if (postgresErrorMessage.includes('null value in column')) {
+        throw new BadRequestException(postgresErrorMessage);
+      } else {
+        throw new InternalServerErrorException('Internal server error occurred while creating a customer');
+      }
+    }
   }
 
   // update customer

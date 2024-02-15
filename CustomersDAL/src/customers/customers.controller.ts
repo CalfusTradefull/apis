@@ -4,9 +4,9 @@ import { CustomersService } from './customers.service';
 import { Customer } from './customer.entity';
 import { QueryFailedError } from 'typeorm';
 
-@Controller('customers')
+console.log("Customers");
 @ApiTags('Customers')
-
+@Controller('customers')
 export class CustomersController {
   constructor(private readonly customersService: CustomersService) {}
 

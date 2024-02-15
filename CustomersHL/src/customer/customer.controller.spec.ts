@@ -3,8 +3,10 @@ import { CustomerController } from "./customer.controller";
 import { CustomerService } from "./customer.service";
 import { CustomerDTO } from "./customer.entity";
 import {
+    BadRequestException,
   ForbiddenException,
   InjectionToken,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from "@nestjs/common";
@@ -188,5 +190,73 @@ describe("CustomerController", () => {
     });
 
     
+  });
+
+  /**
+   * Create Customers 
+   */
+
+  describe("create Customers", () => {
+    const mockCustomerDTO: CustomerDTO = {
+        customer_name: "ABC Corporation",
+        customer_brand_name: "ABC Brand",
+        tf_customer_number: "TF123",
+        erp_account_number: "ERP456",
+        customer_type: "Business",
+        customer_status: "Active",
+        customer_category_id: "Category123",
+        tax_identifier_number: "TIN789",
+        customer_since_dt: "2022-01-01",
+        parent_customer_id: "Parent456",
+        doing_business_as: "ABC Corp",
+        retail_outlet_flg: true,
+        is_b2b_flg: true,
+        is_multi_brand_flg: true,
+        tier_id: "Tier1",
+        region_id: "Region123",
+        lifecycle_stage_id: "Stage456",
+        sic_code: "SIC789",
+        sic_code_type: "TypeA",
+        naics_code: "NAICS123",
+        naics_code_descr: "Description for NAICS123",
+        stock_ticker: "ABC",
+        logistics_fulfillment:
+          '{"pick_pack_ship":"Warehouse123","ship_station":"ShipStation456","wms":"WMS789"}',
+        cis_id: "CIS789",
+        duns_number: "DUNS456",
+        demandbase_id: "Demandbase789",
+        zoominfo_id: "ZoomInfo456",
+        expected_arr: "2022-02-01",
+        expected_gmv: "100000",
+        additional_customer_info: '{"key1":"value1","key2":"value2"}',
+        created_by: "JohnDoe",
+        last_updated_by: "JaneDoe",
+      };
+    it('should create a new customer successfully', async () => {
+        jest.spyOn(customerService, 'create').mockResolvedValue(mockCustomerDTO);
+        const response = await controller.create(mockCustomerDTO);
+        expect(response).toEqual(mockCustomerDTO);
+      });
+
+      it('should handle internal server error during customer creation', async () => {
+        jest.spyOn(customerService, 'create').mockRejectedValue(new InternalServerErrorException('Internal server error'));
+      
+        await expect(controller.create(mockCustomerDTO)).rejects.toThrowError(InternalServerErrorException);
+      });
+      it('should handle bad request during customer creation', async () => {
+        jest.spyOn(customerService, 'create').mockRejectedValue(new BadRequestException('Bad request'));
+      
+        await expect(controller.create(mockCustomerDTO)).rejects.toThrowError(BadRequestException);
+      });
+
+      it('should log the customer creation', async () => {
+        jest.spyOn(customerService, 'create').mockResolvedValue(mockCustomerDTO);
+
+        const loggerSpy = jest.spyOn(controller['logger'], 'log');
+      
+        await controller.create(mockCustomerDTO);
+      
+        expect(loggerSpy).toHaveBeenCalledWith(expect.stringContaining('Create Customer'));
+      });
   });
 });
