@@ -1,11 +1,12 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, InternalServerErrorException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, InternalServerErrorException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiParam, ApiBody, ApiNotFoundResponse, ApiInternalServerErrorResponse } from '@nestjs/swagger';
 import { CustomersService } from './customers.service';
 import { Customer } from './customer.entity';
+import { QueryFailedError } from 'typeorm';
 
-@Controller('customers')
+console.log("Customers");
 @ApiTags('Customers')
-
+@Controller('customers')
 export class CustomersController {
   constructor(private readonly customersService: CustomersService) {}
 
@@ -26,11 +27,20 @@ export class CustomersController {
   @ApiParam({ name: 'id', description: 'Customer ID' })
   @ApiNotFoundResponse({ description: 'Customer not found' })
   async findOne(@Param('id') customer_id: string): Promise<Customer> {
-    const customer = await this.customersService.findOne(customer_id);
-    if (!customer) {
-      throw new Error('Customer not found');
-    } else {
+    try {
+      const customer = await this.customersService.findOne(customer_id);
+      if (!customer) {
+        throw new NotFoundException('Customer not found');
+      }
       return customer;
+    } catch (error) {
+      if(error  instanceof NotFoundException){
+        throw new NotFoundException('Customer not found');
+      }
+      if (error instanceof BadRequestException) {
+        throw new BadRequestException(error.getResponse());
+      }
+      throw new InternalServerErrorException('Internal server error occurred while fetching customer');
     }
   }
 
