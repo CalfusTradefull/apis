@@ -60,7 +60,9 @@ export class CustomerProfile {
 
   @ApiProperty({ example: { key1: 'value', key2: 'value' } })
   @Column('simple-json')
-  additional_profile_info: JSON;
+  additional_profile_info: {
+    [key: string]: string;
+  };
 
   @ApiProperty({
     example: '2024-02-13 18:19:56.798449+05:30',

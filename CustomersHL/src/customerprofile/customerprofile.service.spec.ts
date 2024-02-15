@@ -34,10 +34,10 @@ describe("CustomerService", () => {
   const mockProfile: CustomerProfileDTO = {
     profile_id: "78b8f457-6e1a-43af-be2e-460f356905fa",
     customer_id: "CUST124",
-    customer_address_id: "CUSTOMER_ADDRESS_ID_VALUE",
-    credit_rating: "CREDIT_RATING_VALUE",
-    credit_limit_amt: 10000,
-    ownership: "PUBLIC",
+    customer_address_id: "Kolkata",
+    credit_rating: "191919",
+    credit_limit_amt: 8987989,
+    ownership: "PRIVATE",
     bankruptcy_flg: false,
     bankruptcy_filed_dt: "2024-02-06",
     year_established: "2024-01-01",
@@ -120,11 +120,7 @@ describe("CustomerService", () => {
 
     it('should throw ForbiddenException for connection error', async () => {
       jest.spyOn(axios, 'get').mockRejectedValueOnce(new ForbiddenException('API not available'));
-      try {
-        await service.getProfileByProfileID('valid-profile-id');
-      } catch (error) {
-        expect(error).toBeInstanceOf(ForbiddenException);
-      }
+      await expect(service.getProfileByProfileID('valid-profile-id')).rejects.toBeInstanceOf(ForbiddenException);
     });
   });
 
@@ -162,12 +158,8 @@ describe("CustomerService", () => {
     });
 
     it('should throw ForbiddenException for connection error', async () => {
-      jest.spyOn(axios, 'get').mockRejectedValueOnce(new ForbiddenException('API not available'));
-      try {
-        await service.getProfileByCustomerID(customer_id);
-      } catch (error) {
-        expect(error).toBeInstanceOf(ForbiddenException);
-      }
+      jest.spyOn(axios, 'get').mockRejectedValue(new ForbiddenException('API not available'));
+      await expect(service.getProfileByCustomerID('valid-customer-id')).rejects.toBeInstanceOf(ForbiddenException);
     });
   });
 });

@@ -103,13 +103,10 @@ export class CustomerprofileController {
   })
   async updateCustomerProfile(
     @Param('id') profile_id: string,
-    @Body() profile: CustomerProfile,
+    @Body() profile: Partial<CustomerProfile>,
   ): Promise<CustomerProfile> {
     try {
-      return this.customerProfileService.updateCustomerProfile(
-        profile_id,
-        profile,
-      );
+      return this.customerProfileService.updateCustomerProfile(profile_id, profile);
     } catch (error) {
       return error;
     }
