@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, Param } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { QueryFailedError, Repository } from 'typeorm';
+import { EntityNotFoundError, QueryFailedError, Repository } from 'typeorm';
 import { Customer } from './customer.entity';
 import { error } from 'console';
 
@@ -34,7 +34,7 @@ export class CustomersService {
   }
 
   /**
-   * get one customer
+   * get one customer by Name 
    */
   
   async findByName(customer_name: string): Promise<Customer> {
@@ -63,11 +63,30 @@ export class CustomersService {
     }
   }
 
-  // update customer
-  async update(customer_id: string, customer: Customer): Promise<Customer> {
-    await this.customersRepository.update(customer_id, customer);
-    return await this.customersRepository.findOne( { where : { customer_id} } );
+  async update(customer_id: string, customer: Partial<Customer>): Promise<Customer> {
+    try {
+      const updateResult = await this.customersRepository.update(customer_id, customer);
+      if (updateResult.affected === 0) {
+        throw new NotFoundException(`Customer with ID ${customer_id} not found`);
+      }
+      const updatedCustomer = await this.customersRepository.findOne({ where: { customer_id } });
+      if (!updatedCustomer) {
+        throw new InternalServerErrorException('Failed to retrieve updated customer information');
+      }
+      return updatedCustomer;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(`Customer with ID ${customer_id} not found`);
+      } else if (error instanceof QueryFailedError) {
+        throw new InternalServerErrorException('Failed to update customer information');
+      } else {
+        throw new InternalServerErrorException('Internal server error occurred during customer update');
+      }
+    }
   }
+
+
+
 
   // delete customer
   async delete(customer_id: string): Promise<void> {

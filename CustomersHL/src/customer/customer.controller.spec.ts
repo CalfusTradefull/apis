@@ -221,14 +221,14 @@ describe("CustomerController", () => {
         naics_code_descr: "Description for NAICS123",
         stock_ticker: "ABC",
         logistics_fulfillment:
-          '{"pick_pack_ship":"Warehouse123","ship_station":"ShipStation456","wms":"WMS789"}',
+          {"pick_pack_ship":"Warehouse123","ship_station":"ShipStation456","wms":"WMS789"},
         cis_id: "CIS789",
         duns_number: "DUNS456",
         demandbase_id: "Demandbase789",
         zoominfo_id: "ZoomInfo456",
         expected_arr: "2022-02-01",
         expected_gmv: "100000",
-        additional_customer_info: '{"key1":"value1","key2":"value2"}',
+        additional_customer_info: {"key1":"value1","key2":"value2"},
         created_by: "JohnDoe",
         last_updated_by: "JaneDoe",
       };

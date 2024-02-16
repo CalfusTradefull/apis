@@ -1,5 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
-
+class DynamicProperties {
+  [key: string]: any;
+}
 @Entity()
 export class Customer {
   
@@ -125,7 +127,7 @@ export class Customer {
 
   // Additional customer information stored as JSON
   @Column("simple-json")
-  additional_customer_info: { key1: string; key2: string };
+  additional_customer_info: DynamicProperties;
 
   // Date of customer creation
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })

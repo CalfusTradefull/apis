@@ -103,7 +103,7 @@ export class CustomerService {
   }
 
   /**
-   * Create user Service function 
+   * Create user Service function
    */
 
   async create(customer: CustomerDTO) {
@@ -125,9 +125,12 @@ export class CustomerService {
       if (axios.isAxiosError(error)) {
         const axiosError = error as AxiosError;
         if (axiosError.response) {
-           console.log(axiosError.response.data);
+          console.log(axiosError.response.data);
           if (axiosError.response.status === 400) {
-            throw new HttpException(axiosError.response.data, HttpStatus.BAD_REQUEST);
+            throw new HttpException(
+              axiosError.response.data,
+              HttpStatus.BAD_REQUEST
+            );
           } else if (axiosError.response.status === 404) {
             throw new HttpException("Not found", HttpStatus.NOT_FOUND);
           } else {
@@ -150,25 +153,56 @@ export class CustomerService {
     }
   }
 
-  async update(customerid: string, customer: CustomerDTO) {
-    this.logger.log(
-      new Date(Date.now()).toLocaleString() +
-        " Update Customer: " +
-        JSON.stringify(customer)
-    );
-    const url = this.appConfig.DAL_URL + "customers/".concat(customerid);
+  async update(customerid: string, customer: Partial<CustomerDTO>) {
+    const url = this.appConfig.DAL_URL + "customers/" + customerid;
 
     const customHeaders = {
       "Content-Type": "application/json",
     };
 
-    const response = await fetch(url, {
-      method: "PUT",
-      headers: customHeaders,
-      body: JSON.stringify(customer),
-    });
-    const data = await response.json();
-    return data;
+    try {
+      this.logger.log(
+        new Date(Date.now()).toLocaleString() +
+          " Update Customer: " +
+          JSON.stringify(customer)
+      );
+
+      const response = await axios.put(url, customer, {
+        headers: customHeaders,
+      });
+
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError;
+
+        if (axiosError.response) {
+          const { status } = axiosError.response;
+
+          if (status === 404) {
+            throw new HttpException("Customer not found", HttpStatus.NOT_FOUND);
+          } else if (status === 400) {
+            throw new HttpException("Bad request", HttpStatus.BAD_REQUEST);
+          } else {
+            throw new HttpException(
+              "Server error",
+              HttpStatus.INTERNAL_SERVER_ERROR
+            );
+          }
+        } else {
+          throw new HttpException(
+            "Network error",
+            HttpStatus.SERVICE_UNAVAILABLE
+          );
+        }
+      } else {
+        throw new HttpException(
+          "Internal server error",
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
+      }
+    }
   }
 
   async delete(customerid: string) {

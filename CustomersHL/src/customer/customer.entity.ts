@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+class logistics_fulfillment
+  { pick_pack_ship: string; ship_station: string; wms: string }
+
+  class DynamicProperties {
+    [key: string]: any;
+  }
 export class CustomerDTO {
   @ApiProperty({ description: 'Customer name' })
   customer_name: string;
@@ -68,7 +74,7 @@ export class CustomerDTO {
   stock_ticker: string;
 
   @ApiProperty({ description: 'Logistics fulfillment information' })
-  logistics_fulfillment: string;
+  logistics_fulfillment: logistics_fulfillment;
 
   @ApiProperty({ description: 'ID of the CIS (Customer Information System)' })
   cis_id: string;
@@ -89,7 +95,7 @@ export class CustomerDTO {
   expected_gmv: string;
 
   @ApiProperty({ description: 'Additional customer information' })
-  additional_customer_info: string;
+  additional_customer_info: DynamicProperties;
 
   @ApiProperty({ description: 'User who created the customer record' })
   created_by: string;
