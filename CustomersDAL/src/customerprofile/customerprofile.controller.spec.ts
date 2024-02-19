@@ -161,7 +161,7 @@ describe('CustomerprofileController', () => {
       const profile_id = '12345';
       jest.spyOn(service, 'getCustomerProfileByProfileId').mockResolvedValueOnce(mockProfile); // Simulate profile not found
       jest.spyOn(service, 'deleteCustomerProfile').mockResolvedValueOnce(null); // Mock deleteCustomerProfile method
-      await expect(controller.deleteCustomerProfile(profile_id)).resolves.toBeUndefined();
+      await expect(controller.deleteCustomerProfile(profile_id)).resolves.toBeNull();
       expect(service.getCustomerProfileByProfileId).toHaveBeenCalledWith(profile_id);
       expect(service.deleteCustomerProfile).toHaveBeenCalledWith(profile_id);
     });
