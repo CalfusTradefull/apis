@@ -1,8 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { UUID } from "crypto";
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity({name:'Customer Contact'})
+//@Entity({name:'Customer Contact'})
+@Entity('customer_contacts')
 export class CustomerContacts{
 
     @PrimaryGeneratedColumn("uuid")

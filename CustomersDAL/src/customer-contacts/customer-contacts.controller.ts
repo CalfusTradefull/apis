@@ -2,7 +2,6 @@ import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put } fr
 import { CustomerContactsService } from './customer-contacts.service';
 import { CustomerContacts } from './customer-contact.entity';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { error, log } from 'console';
 
 @Controller('customer-contacts')
 @ApiTags('Customer-Contacts')
@@ -42,6 +41,7 @@ export class CustomerContactsController {
     @ApiBody({ type: CustomerContacts })
     @ApiResponse({status:200})
     async update(@Param('id') cus_id: string, @Body() contact:Partial<CustomerContacts> ): Promise<CustomerContacts> {
+      console.log(`from DAL Controller`);
     return this.cusconserv.update(cus_id, contact);
     }
 
@@ -49,10 +49,11 @@ export class CustomerContactsController {
     @Delete('delete/:id')
     @ApiOperation({ summary: 'Customer Customer profiles' })
     @ApiParam({ name: 'id', type: String })
+    @ApiResponse({status:200}) 
     async delete(@Param('id') contact_id: string): Promise<void> {
       const role = await this.cusconserv.findOne(contact_id);
       if (!role) {
-        throw new NotFoundException('Customer contact not found');
+        throw new Error('Customer contact not found');
       }
       return this.cusconserv.delete(contact_id);
   }

@@ -35,8 +35,11 @@ export class CustomerContactsService {
         }
 
         async update(customer_id: string, contact:Partial <CustomerContacts>): Promise<CustomerContacts> {
+            console.log(`from DAL !!!!!!!!!!!!!!!!!!!!!!!`);
             const updates = this.cusconserv.update(customer_id,contact);
-            return this.cusconserv.findOne({ where : {customer_id }})
+            console.log(`from DAL service ${updates}`);
+            console.log(`id is : ${this.cusconserv.findOne({ where : {customer_id }})}`)
+            return await this.cusconserv.findOne({ where : {customer_id }});
         }
 
         async delete(contact_id: string): Promise<void> {

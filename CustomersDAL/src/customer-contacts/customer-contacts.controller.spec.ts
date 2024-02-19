@@ -1,12 +1,10 @@
-import { UsersService } from './../../../nest-crud-live-main-Users/src/users/users.service';
-import {QueryFailedError, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import {  Test, TestingModule } from '@nestjs/testing';
 import { CustomerContactsController } from './customer-contacts.controller';
 import { CustomerContactsService } from './customer-contacts.service';
 import { MockType } from './customer-contacts.service.spec';
 import { CustomerContacts } from './customer-contact.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { error } from 'console';
 import { NotFoundError } from 'rxjs';
 
 

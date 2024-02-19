@@ -4,7 +4,6 @@ import { CustomerContactsController } from './customer-contacts.controller';
 import { Repository } from 'typeorm';
 import { CustomerContacts } from './customer-contact.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Body } from '@nestjs/common';
 
 export type MockType<T> = {
   [P in keyof T]: jest.Mock<{}>;
