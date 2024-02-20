@@ -8,38 +8,27 @@ export class CustomerContactsService {
 
     constructor( 
         @InjectRepository(CustomerContacts)
-        private readonly cusconserv : Repository<CustomerContacts>
+        private  cusconserv : Repository<CustomerContacts>
         ){}
 
         async findall():Promise<CustomerContacts[]> {
-            return await this.cusconserv.find();
+                const customerContacts = await this.cusconserv.find();
+                return customerContacts || []; 
         }
 
         async findOne(contact_id: string): Promise<CustomerContacts> {
-            try{
-                return await this.cusconserv.findOne({ where:{contact_id}})
-            }
-            catch(error){
-                console.log(`error for creating customer contact is ${error}`);
-            }
-         
+                return await this.cusconserv.findOne({ where:{contact_id}});         
         }
 
         async create(contact: CustomerContacts): Promise<CustomerContacts> {
-            // try {
-                // const creates = this.cusconserv.create(contact);
                 return await this.cusconserv.save(contact);
-            // } catch (error) {
-            //     return error
-            // }
         }
 
         async update(customer_id: string, contact:Partial <CustomerContacts>): Promise<CustomerContacts> {
-            console.log(`from DAL !!!!!!!!!!!!!!!!!!!!!!!`);
-            const updates = this.cusconserv.update(customer_id,contact);
-            console.log(`from DAL service ${updates}`);
-            console.log(`id is : ${this.cusconserv.findOne({ where : {customer_id }})}`)
-            return await this.cusconserv.findOne({ where : {customer_id }});
+            
+            const update = this.cusconserv.update(customer_id,contact);
+            return await this.cusconserv.findOne({where : {customer_id}});
+
         }
 
         async delete(contact_id: string): Promise<void> {

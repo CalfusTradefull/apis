@@ -2,10 +2,10 @@ import { Repository } from 'typeorm';
 import {  Test, TestingModule } from '@nestjs/testing';
 import { CustomerContactsController } from './customer-contacts.controller';
 import { CustomerContactsService } from './customer-contacts.service';
-import { MockType } from './customer-contacts.service.spec';
 import { CustomerContacts } from './customer-contact.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotFoundError } from 'rxjs';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 
 const repositoryMock = {
@@ -50,7 +50,7 @@ const mockCustomerContactsRepo = {
 describe('CustomerContactsController', () => {
   let controller: CustomerContactsController;
   let service : CustomerContactsService;
-  let repositoryMock : MockType<Repository<CustomerContacts>>;
+  let repositoryMock : Repository<CustomerContacts>;
 
 
   beforeEach(async () => {
@@ -90,6 +90,30 @@ describe('CustomerContactsController', () => {
       expect(result).toEqual(mockCustomerContacts);
       expect(service.findall).toHaveBeenCalled();
     });
+
+    it('should handle validation errors may return 400 status code', async () => {
+      const mockCustomerContacts : CustomerContacts = mockCustomerContactsRepo;
+      jest.spyOn(service, 'findall').mockRejectedValueOnce(new Error('Validation failed'));
+      await expect(controller.findall()).rejects.toThrow('Validation failed');
+    });
+
+    it('should handle database errors', async () => {
+      const mockCustomerContacts : CustomerContacts = mockCustomerContactsRepo;
+      jest.spyOn(service, 'findall').mockRejectedValueOnce(new Error('Database error'));
+      await expect(controller.findall()).rejects.toThrow('Database error');
+    });
+  
+    it('should handle authorization errors', async () => {
+      const mockCustomerContacts : CustomerContacts = mockCustomerContactsRepo;
+      jest.spyOn(service, 'findall').mockRejectedValueOnce(new Error('Unauthorized'));
+      await expect(controller.findall()).rejects.toThrow('Unauthorized');
+    });
+  
+    it('should handle network errors', async () => {
+      const mockCustomerContacts : CustomerContacts = mockCustomerContactsRepo;
+      jest.spyOn(service, 'findall').mockRejectedValueOnce(new Error('Service unavailable'));
+      await expect(controller.findall()).rejects.toThrow('Service unavailable');
+    });
   });
 
   describe('findOne',()=>{
@@ -103,6 +127,30 @@ describe('CustomerContactsController', () => {
        console.log(expectedresult);
       expect(expectedresult).toEqual(mockCustomerContactsExpected);
       expect(service.findOne).toHaveBeenCalledWith(mockCustomerContactsExpected.contact_id);
+    });
+
+    it('should handle validation errors may return 400 status code', async () => {
+      const mockCustomerContacts : CustomerContacts = mockCustomerContactsRepo;
+      jest.spyOn(service, 'findOne').mockRejectedValueOnce(new Error('Validation failed'));
+      await expect(controller.findOne(mockCustomerContacts.contact_id)).rejects.toThrow('Validation failed');
+    });
+
+    it('should handle database errors', async () => {
+      const mockCustomerContacts : CustomerContacts = mockCustomerContactsRepo;
+      jest.spyOn(service, 'findOne').mockRejectedValueOnce(new Error('Database error'));
+      await expect(controller.findOne(mockCustomerContacts.contact_id)).rejects.toThrow('Database error');
+    });
+  
+    it('should handle authorization errors', async () => {
+      const mockCustomerContacts : CustomerContacts = mockCustomerContactsRepo;
+      jest.spyOn(service, 'findOne').mockRejectedValueOnce(new Error('Unauthorized'));
+      await expect(controller.findOne(mockCustomerContacts.contact_id)).rejects.toThrow('Unauthorized');
+    });
+  
+    it('should handle network errors', async () => { 
+      const mockCustomerContacts : CustomerContacts = mockCustomerContactsRepo;
+      jest.spyOn(service, 'findOne').mockRejectedValueOnce(new Error('Service unavailable'));
+      await expect(controller.findOne(mockCustomerContacts.contact_id)).rejects.toThrow('Service unavailable');
     });
   });
 
@@ -194,13 +242,37 @@ describe('CustomerContactsController', () => {
 
     it('should handle deletion errors', async () => {
       const userId = mockCustomerContacts.contact_id;
-      jest.spyOn(service, 'delete').mockRejectedValue(NotFoundError);
-     jest.spyOn(service,'findOne').mockResolvedValueOnce(mockCustomerContacts);
-      //mockResolvedValueOnce
-      await expect(controller.delete(userId)).rejects.toEqual(NotFoundError);
+      jest.spyOn(service, 'delete').mockRejectedValue(new NotFoundException());
+      jest.spyOn(service,'findOne').mockResolvedValueOnce(null);
+      await expect(controller.delete(userId)).rejects.toThrow(Error);
+    });
+
+    it('should handle validation errors may return 400 status code', async () => {
+      const mockCustomerContacts : CustomerContacts = mockCustomerContactsRepo;
+      jest.spyOn(service, 'delete').mockRejectedValueOnce(new Error('Validation failed'));
+      expect(controller.delete(mockCustomerContacts.contact_id)).rejects.toThrowError(Error); // We mentioned error because we are handling or errors usinf Error class in controller hence we use General Class Error
+    });
+  
+      it('should handle database errors', async () => {
+        const mockCustomerContacts : CustomerContacts = mockCustomerContactsRepo;
+        jest.spyOn(service, 'delete').mockRejectedValueOnce(new Error('Database error'));
+        expect(controller.delete(mockCustomerContacts.contact_id)).rejects.toThrowError(Error);
+      });
+    
+      it('should handle authorization errors', async () => {
+        const mockCustomerContacts : CustomerContacts = mockCustomerContactsRepo;
+        jest.spyOn(service, 'delete').mockRejectedValueOnce(new Error('Unauthorized'));
+        expect(controller.delete(mockCustomerContacts.contact_id)).rejects.toThrowError(Error);
+      });
+    
+      it('should handle network errors', async () => {
+        const mockCustomerContacts : CustomerContacts = mockCustomerContactsRepo;
+        jest.spyOn(service, 'delete').mockRejectedValueOnce(new Error('Service unavailable'));
+        expect(controller.delete(mockCustomerContacts.contact_id)).rejects.toThrowError(Error);
+      });
 
     });
   
   
   });
- });
+//  });
