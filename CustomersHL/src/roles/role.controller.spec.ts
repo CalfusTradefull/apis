@@ -6,7 +6,7 @@ import { RoleController } from './role.controller';
 import { RoleService } from './role.service';
 import { RoleDTO, mockRoleDTO } from './role.entity';
 
-describe('CustomerprofileController', () => {
+describe('RoleController', () => {
   let controller: RoleController;
   let service: RoleService;
   jest.mock('axios');
