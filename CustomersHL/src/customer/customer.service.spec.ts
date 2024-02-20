@@ -342,23 +342,35 @@ describe("CustomerService", () => {
 
       axiosPutSpy.mockRestore();
     });
-    // it("should handle 404 Not Found error during update", async () => {
-    //   const axiosPutSpy = jest
-    //     .spyOn(axios, "put")
+  });
 
-    //     .mockRejectedValue({ response: { status: 404 } } as AxiosError);
+  /**
+   * Delete Customer  Test Suite
+   */
+  describe("Delete Customer", () => {
+    it("should delete a customer successfully", async () => {
+      const customerId = "valid_customer_id";
+      jest.spyOn(axios, "delete").mockResolvedValue({ status: 200 });
+      const result = await service.delete(customerId);
+      expect(result).toBe(200);
+    });
 
-    //   await expect(
-    //     service.update("customer_id", updatedCustomer)
-    //   ).rejects.toThrowError(NotFoundException);
+    it("should handle a 404 error gracefully", async () => {
+      const customerId = "non_existing_customer_id";
+      jest.spyOn(axios, "delete").mockRejectedValue(new NotFoundException());
+      await expect(service.delete(customerId)).rejects.toThrowError(
+        NotFoundException
+      );
+    });
 
-    //   expect(axiosPutSpy).toHaveBeenCalledWith(
-    //     expect.stringContaining("customers/customer_id"),
-    //     updatedCustomer,
-    //     expect.any(Object)
-    //   );
-
-    //   axiosPutSpy.mockRestore();
-    // });
+    it("should handle unexpected errors", async () => {
+      const customerId = "some_customer_id";
+      jest
+        .spyOn(axios, "delete")
+        .mockRejectedValue(new Error("Unexpected error"));
+      await expect(service.delete(customerId)).rejects.toThrowError(
+        "Unexpected error"
+      );
+    });
   });
 });

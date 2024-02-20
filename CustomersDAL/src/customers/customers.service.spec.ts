@@ -8,14 +8,12 @@ import {
 } from "@nestjs/common";
 import { CustomersService } from "./customers.service";
 import { Customer } from "./customer.entity";
-
+import { error } from "console";
 
 describe("CustomersService", () => {
   let service: CustomersService;
   let repository: Repository<Customer>;
-    let repositoryMock: Record<string, jest.Mock>;
-
-
+  let repositoryMock: Record<string, jest.Mock>;
 
   const mockCustomers: Customer = {
     customer_id: "efb444e4-4b7d-44d0-b12b-06a97006ea95",
@@ -68,8 +66,8 @@ describe("CustomersService", () => {
       save: jest.fn(),
       find: jest.fn(),
       findOne: jest.fn(),
-      update: jest.fn()
-
+      update: jest.fn(),
+      delete: jest.fn(),
     };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -93,7 +91,9 @@ describe("CustomersService", () => {
     });
 
     it("should handle errors and throw InternalServerErrorException", async () => {
-      jest.spyOn(repositoryMock, "find").mockRejectedValue(new Error("Test error"));
+      jest
+        .spyOn(repositoryMock, "find")
+        .mockRejectedValue(new Error("Test error"));
       await expect(service.findall()).rejects.toThrowError(
         InternalServerErrorException
       );
@@ -135,8 +135,7 @@ describe("CustomersService", () => {
    * Create
    */
   describe("Create", () => {
-
-    const mockCustomerscreate : Customer = {
+    const mockCustomerscreate: Customer = {
       customer_id: "efb444e4-4b7d-44d0-b12b-06a97006ea95",
       customer_name: "ABC Corporation",
       customer_brand_name: "ABC Brand",
@@ -180,7 +179,7 @@ describe("CustomersService", () => {
       last_update_date: new Date("2024-02-15T12:07:02.001Z"),
       last_updated_by: "JaneDoe",
     };
-  
+
     it("should create a new customer successfully", async () => {
       repositoryMock.create.mockReturnValue(mockCustomerscreate);
       repositoryMock.save.mockResolvedValue(mockCustomerscreate);
@@ -190,35 +189,44 @@ describe("CustomersService", () => {
       expect(createdCustomer).toEqual(mockCustomerscreate);
     });
 
-    it('should handle a PostgreSQL constraint violation error', async () => {
+    it("should handle a PostgreSQL constraint violation error", async () => {
       repositoryMock.create.mockReturnValue(mockCustomerscreate);
-      repositoryMock.save.mockRejectedValue({ message: 'null value in column' });
-      await expect(service.create(mockCustomerscreate)).rejects.toThrowError(BadRequestException);
+      repositoryMock.save.mockRejectedValue({
+        message: "null value in column",
+      });
+      await expect(service.create(mockCustomerscreate)).rejects.toThrowError(
+        BadRequestException
+      );
     });
 
-    it('should handle other errors during customer creation', async () => {  
+    it("should handle other errors during customer creation", async () => {
       repositoryMock.create.mockReturnValue(mockCustomerscreate);
-      repositoryMock.save.mockRejectedValue(new Error('Some unexpected error'));
-      await expect(service.create(mockCustomerscreate)).rejects.toThrowError(InternalServerErrorException);
+      repositoryMock.save.mockRejectedValue(new Error("Some unexpected error"));
+      await expect(service.create(mockCustomerscreate)).rejects.toThrowError(
+        InternalServerErrorException
+      );
     });
-    it('should handle a failed save operation', async () => {  
+    it("should handle a failed save operation", async () => {
       repositoryMock.create.mockReturnValue(mockCustomerscreate);
       repositoryMock.save.mockResolvedValue(undefined);
-      await expect(service.create(mockCustomerscreate)).rejects.toThrowError(InternalServerErrorException);
+      await expect(service.create(mockCustomerscreate)).rejects.toThrowError(
+        InternalServerErrorException
+      );
     });
-  
-    it('should handle other unexpected errors during customer creation', async () => {
+
+    it("should handle other unexpected errors during customer creation", async () => {
       repositoryMock.create.mockReturnValue(mockCustomerscreate);
-      repositoryMock.save.mockRejectedValue(new Error('Some unexpected error'));
-      await expect(service.create(mockCustomerscreate)).rejects.toThrowError(InternalServerErrorException);
+      repositoryMock.save.mockRejectedValue(new Error("Some unexpected error"));
+      await expect(service.create(mockCustomerscreate)).rejects.toThrowError(
+        InternalServerErrorException
+      );
     });
   });
 
   /**
    * Update  Customer Test Suite
    */
-  describe('Update  Customer', () => {
-
+  describe("Update  Customer", () => {
     const mockCustomersupdate: Customer = {
       customer_id: "efb444e4-4b7d-44d0-b12b-06a97006ea95",
       customer_name: "ABC Corporation",
@@ -263,56 +271,111 @@ describe("CustomersService", () => {
       last_update_date: new Date(),
       last_updated_by: "JaneDoe",
     };
-    it('should update customer successfully', async () => {
-      const customer_id = 'efb444e4-4b7d-44d0-b12b-06a97006ea95';
+    it("should update customer successfully", async () => {
+      const customer_id = "efb444e4-4b7d-44d0-b12b-06a97006ea95";
       const updatedCustomer: Partial<Customer> = {
-        "customer_brand_name": "ABC Brand123"
-     }
-     jest.spyOn(repositoryMock, 'update').mockResolvedValue({ affected: 1 });
-     jest.spyOn(repositoryMock, 'findOne').mockResolvedValue(mockCustomersupdate);
+        customer_brand_name: "ABC Brand123",
+      };
+      jest.spyOn(repositoryMock, "update").mockResolvedValue({ affected: 1 });
+      jest
+        .spyOn(repositoryMock, "findOne")
+        .mockResolvedValue(mockCustomersupdate);
 
       const result = await service.update(customer_id, updatedCustomer);
       expect(result).toEqual(mockCustomersupdate);
     });
 
-    it('should handle customer not found', async () => {
-      const customer_id = 'nonexistent-customer-id';
+    it("should handle customer not found", async () => {
+      const customer_id = "nonexistent-customer-id";
       const updatedCustomer: Partial<Customer> = {
-        "customer_brand_name": "ABC Brand123"
-     }
-     jest.spyOn(repositoryMock, 'update').mockResolvedValue({ affected: 0 });
-     await expect(service.update(customer_id, updatedCustomer)).rejects.toThrowError(NotFoundException);
+        customer_brand_name: "ABC Brand123",
+      };
+      jest.spyOn(repositoryMock, "update").mockResolvedValue({ affected: 0 });
+      await expect(
+        service.update(customer_id, updatedCustomer)
+      ).rejects.toThrowError(NotFoundException);
     });
 
-    it('should handle internal server error during update', async () => {
-
-      const customer_id = 'efb444e4-4b7d-44d0-b12b-06a97006ea95';
+    it("should handle internal server error during update", async () => {
+      const customer_id = "efb444e4-4b7d-44d0-b12b-06a97006ea95";
       const updatedCustomer: Partial<Customer> = {
-        "customer_brand_name": "ABC Brand123"
-     }
-      jest.spyOn(repositoryMock, 'update').mockRejectedValue(new Error('Some unexpected error'));
-      await expect(service.update(customer_id, updatedCustomer)).rejects.toThrowError(InternalServerErrorException);
+        customer_brand_name: "ABC Brand123",
+      };
+      jest
+        .spyOn(repositoryMock, "update")
+        .mockRejectedValue(new Error("Some unexpected error"));
+      await expect(
+        service.update(customer_id, updatedCustomer)
+      ).rejects.toThrowError(InternalServerErrorException);
     });
 
-    it('should handle internal server error during update', async () => {
-      const customer_id = 'efb444e4-4b7d-44d0-b12b-06a97006ea95';
+    it("should handle internal server error during update", async () => {
+      const customer_id = "efb444e4-4b7d-44d0-b12b-06a97006ea95";
       const updatedCustomer: Partial<Customer> = {
-        "customer_brand_name": "ABC Brand123"
-     }
-      jest.spyOn(repositoryMock, 'update').mockRejectedValue(new QueryFailedError('query', [], new Error('Some unexpected error')));
-      await expect(service.update(customer_id, updatedCustomer)).rejects.toThrowError(InternalServerErrorException);
+        customer_brand_name: "ABC Brand123",
+      };
+      jest
+        .spyOn(repositoryMock, "update")
+        .mockRejectedValue(
+          new QueryFailedError("query", [], new Error("Some unexpected error"))
+        );
+      await expect(
+        service.update(customer_id, updatedCustomer)
+      ).rejects.toThrowError(InternalServerErrorException);
     });
 
-    it('should handle Update but not return data ', async () => {
-      const customer_id = 'efb444e4-4b7d-44d0-b12b-06a97006ea95';
+    it("should handle Update but not return data ", async () => {
+      const customer_id = "efb444e4-4b7d-44d0-b12b-06a97006ea95";
       const updatedCustomer: Partial<Customer> = {
-        "customer_brand_name": "ABC Brand123"
-     }
-      jest.spyOn(repositoryMock, 'update').mockResolvedValue({ affected: 1 });;
-      jest.spyOn(repositoryMock, 'findOne').mockRejectedValue(null);
-      await expect(service.update(customer_id, updatedCustomer)).rejects.toThrowError(InternalServerErrorException);
+        customer_brand_name: "ABC Brand123",
+      };
+      jest.spyOn(repositoryMock, "update").mockResolvedValue({ affected: 1 });
+      jest.spyOn(repositoryMock, "findOne").mockRejectedValue(null);
+      await expect(
+        service.update(customer_id, updatedCustomer)
+      ).rejects.toThrowError(InternalServerErrorException);
     });
+  });
 
-  })
-  
+  /**
+   * Delete  method service test tests
+   */
+
+  describe("Delete Customers ", () => {
+    it("should delete an existing customer", async () => {
+      var deleteResult = {
+        affected: 1,
+      };
+      const customer_id = "efb444e4-4b7d-44d0-b12b-06a97006ea95";
+      jest.spyOn(repositoryMock, "findOne").mockResolvedValue(mockCustomers);
+      jest.spyOn(repositoryMock, "delete").mockResolvedValue(deleteResult);
+      const result = await service.delete(customer_id);
+      expect(result).toEqual(deleteResult);
+    });
+  });
+
+  it("should throw NotFoundException for deleting a non-existing customer", async () => {
+    const customer_id = "efb444e4-4b7d-44d0-b12b-06a97006ea95";
+    jest.spyOn(repositoryMock, "findOne").mockResolvedValue(null);
+    await expect(service.delete(customer_id)).rejects.toThrowError(
+      NotFoundException
+    );
+  });
+  it("should throw NotFoundException for deleting a non-existing customer", async () => {
+    const customer_id = "efb444e4-4b7d-44d0-b12b-06a97006ea95";
+    var deleteResult = {
+      affected: 0,
+    };
+    jest.spyOn(repositoryMock, "findOne").mockResolvedValue(mockCustomers);
+    jest.spyOn(repositoryMock, "delete").mockResolvedValue(deleteResult);
+    await expect(service.delete(customer_id)).rejects.toThrowError(
+      NotFoundException
+    );
+  });
+
+  it("should handdal Others Errors", async () => {
+    const customer_id = "efb444e4-4b7d-44d0-b12b-06a97006ea95";
+    jest.spyOn(repositoryMock, "findOne").mockResolvedValue(Error);
+    await expect(service.delete(customer_id)).rejects.toBeInstanceOf(Error);
+  });
 });

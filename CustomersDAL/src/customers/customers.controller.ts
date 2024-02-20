@@ -21,9 +21,8 @@ import {
 } from "@nestjs/swagger";
 import { CustomersService } from "./customers.service";
 import { Customer } from "./customer.entity";
-import { QueryFailedError } from "typeorm";
+import { DeleteResult, QueryFailedError } from "typeorm";
 
-console.log("Customers");
 @ApiTags("Customers")
 @Controller("customers")
 export class CustomersController {
@@ -144,12 +143,7 @@ export class CustomersController {
   @ApiParam({ name: "id", description: "Customer ID" })
   @ApiNotFoundResponse({ description: "Customer not found" })
   @ApiInternalServerErrorResponse({ description: "Internal server error" })
-  async delete(@Param("id") customer_id: string): Promise<void> {
-    // Handle the error if the customer is not found
-    const customer = await this.customersService.findOne(customer_id);
-    if (!customer) {
-      throw new Error("Customer not found");
-    }
+  async delete(@Param("id") customer_id: string): Promise<DeleteResult> {
     return this.customersService.delete(customer_id);
   }
 }

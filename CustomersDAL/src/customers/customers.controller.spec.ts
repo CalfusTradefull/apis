@@ -172,12 +172,11 @@ describe("CustomersController", () => {
     });
   });
 
-/**
- * Update Customers 
- */
+  /**
+   * Update Customers
+   */
 
-
-  describe('update', () => {
+  describe("update", () => {
     const mockCustomersupdate: Customer = {
       customer_id: "efb444e4-4b7d-44d0-b12b-06a97006ea95",
       customer_name: "ABC Corporation",
@@ -222,34 +221,75 @@ describe("CustomersController", () => {
       last_update_date: new Date(),
       last_updated_by: "JaneDoe",
     };
-    it('should update customer successfully', async () => {
-      const customer_id = 'efb444e4-4b7d-44d0-b12b-06a97006ea95';
+    it("should update customer successfully", async () => {
+      const customer_id = "efb444e4-4b7d-44d0-b12b-06a97006ea95";
       const updatedCustomer: Partial<Customer> = {
-        "customer_brand_name": "ABC Brand123"
-     }
-      jest.spyOn(customersService, 'update').mockResolvedValue(mockCustomersupdate);
+        customer_brand_name: "ABC Brand123",
+      };
+      jest
+        .spyOn(customersService, "update")
+        .mockResolvedValue(mockCustomersupdate);
       const result = await controller.update(customer_id, updatedCustomer);
       expect(result).toEqual(mockCustomersupdate);
     });
 
-    it('should handle customer not found', async () => {
-
-      const customer_id = 'nonexistent-customer-id';
+    it("should handle customer not found", async () => {
+      const customer_id = "nonexistent-customer-id";
       const updatedCustomer: Partial<Customer> = {
-        "customer_brand_name": "ABC Brand123"
-     }
-      jest.spyOn(customersService, 'update').mockRejectedValue(new NotFoundException());
-      await expect(controller.update(customer_id, updatedCustomer)).rejects.toThrowError(NotFoundException);
+        customer_brand_name: "ABC Brand123",
+      };
+      jest
+        .spyOn(customersService, "update")
+        .mockRejectedValue(new NotFoundException());
+      await expect(
+        controller.update(customer_id, updatedCustomer)
+      ).rejects.toThrowError(NotFoundException);
     });
 
-    it('should handle internal server error during update', async () => {
-  
-      const customer_id = 'efb444e4-4b7d-44d0-b12b-06a97006ea95';
+    it("should handle internal server error during update", async () => {
+      const customer_id = "efb444e4-4b7d-44d0-b12b-06a97006ea95";
       const updatedCustomer: Partial<Customer> = {
-        "customer_brand_name": "ABC Brand123"
-     }
-      jest.spyOn(customersService, 'update').mockRejectedValue(new InternalServerErrorException());
-      await expect(controller.update(customer_id, updatedCustomer)).rejects.toThrowError(InternalServerErrorException);
+        customer_brand_name: "ABC Brand123",
+      };
+      jest
+        .spyOn(customersService, "update")
+        .mockRejectedValue(new InternalServerErrorException());
+      await expect(
+        controller.update(customer_id, updatedCustomer)
+      ).rejects.toThrowError(InternalServerErrorException);
     });
+  });
+
+  /**
+   * Delete  Customer Test Suite
+   */
+
+  /**
+   * Delete  method service test tests
+   */
+
+  describe("Delete Customers ", () => {
+    it("should delete an existing customer", async () => {
+      const customer_id = "efb444e4-4b7d-44d0-b12b-06a97006ea95";
+      jest.spyOn(customersService, "delete").mockResolvedValue(null);
+      const result = await controller.delete(customer_id);
+      expect(result).toEqual(null);
+    });
+  });
+
+  it("should throw NotFoundException for deleting a non-existing customer", async () => {
+    const customer_id = "efb444e4-4b7d-44d0-b12b-06a97006ea95";
+    jest
+      .spyOn(customersService, "delete")
+      .mockRejectedValue(new NotFoundException());
+    await expect(controller.delete(customer_id)).rejects.toThrowError(
+      NotFoundException
+    );
+  });
+
+  it("should handdal Others Errors", async () => {
+    const customer_id = "efb444e4-4b7d-44d0-b12b-06a97006ea95";
+    jest.spyOn(customersService, "update").mockRejectedValue(new Error());
+    await expect(controller.delete(customer_id)).rejects.toBeInstanceOf(Error);
   });
 });

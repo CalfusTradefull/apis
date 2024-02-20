@@ -117,7 +117,7 @@ export class CustomerController {
         " Update Customer: " +
         JSON.stringify(customerDTO)
     );
-    console.log();
+
     return this.customerService.update(customerid, customerDTO);
   }
 

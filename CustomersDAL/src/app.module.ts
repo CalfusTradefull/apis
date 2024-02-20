@@ -1,15 +1,15 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { CustomersModule } from './customers/customers.module';
-import { AddressModule } from './address/address.module';
-import { UsersModule } from './users/users.module';
-import { RolesModule } from './roles/roles.module';
-import { UserRolesModule } from './userroles/userroles.module';
-import { CustomerprofileModule } from './customerprofile/customerprofile.module';
-import { CustomerPreferencesModule } from './customerpreferences/customerpreferences.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
+import { Module } from "@nestjs/common";
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
+import { CustomersModule } from "./customers/customers.module";
+import { AddressModule } from "./address/address.module";
+import { UsersModule } from "./users/users.module";
+import { RolesModule } from "./roles/roles.module";
+import { UserRolesModule } from "./userroles/userroles.module";
+import { CustomerprofileModule } from "./customerprofile/customerprofile.module";
+import { CustomerPreferencesModule } from "./customerpreferences/customerpreferences.module";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { ConfigModule } from "@nestjs/config";
 
 @Module({
   imports: [
@@ -28,7 +28,7 @@ import { ConfigModule } from '@nestjs/config';
       username: process.env.PG_USER,
       password: process.env.PG_PASSWORD,
       database: process.env.PG_DB,
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      entities: [__dirname + "/**/*.entity{.ts,.js}"],
       synchronize: true,
     }),
   ],
@@ -36,5 +36,3 @@ import { ConfigModule } from '@nestjs/config';
   providers: [AppService],
 })
 export class AppModule {}
-console.log(process.env.PG_HOST);
-

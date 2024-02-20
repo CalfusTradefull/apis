@@ -125,7 +125,6 @@ export class CustomerService {
       if (axios.isAxiosError(error)) {
         const axiosError = error as AxiosError;
         if (axiosError.response) {
-          console.log(axiosError.response.data);
           if (axiosError.response.status === 400) {
             throw new HttpException(
               axiosError.response.data,
@@ -173,7 +172,6 @@ export class CustomerService {
 
       return response.data;
     } catch (error) {
-      console.log(error);
       if (axios.isAxiosError(error)) {
         const axiosError = error as AxiosError;
 
@@ -205,18 +203,39 @@ export class CustomerService {
     }
   }
 
-  async delete(customerid: string) {
-    this.logger.log(
-      new Date(Date.now()).toLocaleString() + " Delete Customer: " + customerid
-    );
-    const url = this.appConfig.DAL_URL + "customers/".concat(customerid);
+  async delete(customerId: string) {
+    try {
+      this.logger.log(
+        new Date(Date.now()).toLocaleString() +
+          " Delete Customer: " +
+          customerId
+      );
+      const url = this.appConfig.DAL_URL + "customers/".concat(customerId);
+      const customHeaders = {
+        "Content-Type": "application/json",
+      };
+      const response = await axios.delete(url, { headers: customHeaders });
 
-    const customHeaders = {
-      "Content-Type": "application/json",
-    };
-
-    const response = await fetch(url, { method: "DELETE" });
-    const data = response.status;
-    return data;
+      if (response.status >= 200 && response.status < 300) {
+        return response.status;
+      } else {
+        this.logger.error(
+          `Failed to delete customer with ID ${customerId}. Status: ${response.status}`
+        );
+        throw new Error(
+          `Failed to delete customer with ID ${customerId}. Status: ${response.status}`
+        );
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        this.logger.warn(`Customer with ID ${customerId} not found.`);
+        throw new NotFoundException(`Customer with ID ${customerId} not found`);
+      } else {
+        this.logger.error(
+          `Unexpected error during delete operation for customer with ID ${customerId}. Error: ${error.message}`
+        );
+      }
+      throw error;
+    }
   }
 }
