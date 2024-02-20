@@ -394,93 +394,92 @@ describe("RoleService", () => {
       jest.spyOn(axios, 'put').mockRejectedValue(axiosError);
       await expect(service.update(valid_role_id, mockUpdateData)).rejects.toThrowError(HttpException);
     })
+  });
 
-    describe(("delete"), () => {
-      it('should delete a role', async () => {
-        jest.spyOn(axios, 'delete').mockResolvedValue(null);
-        const result = await service.delete(valid_role_id);
-        expect(result).toEqual(null);
-      });
-
-      it('should return Forbidden exception if DAL server is not reachable', async () => {
-        jest.spyOn(axios, 'delete').mockRejectedValue(new ForbiddenException('API not available'));
-        await expect(service.delete(valid_role_id)).rejects.toThrowError(ForbiddenException);
-      });
-  
-      it('should return NotFoundException for any other axios error', async () => {
-        const axiosError: AxiosError = {
-          name: "AxiosError",
-          message: "Request failed with status code 404",
-          isAxiosError: true,
-          toJSON: () => ({}),
-          response: {
-            data: {},
-            status: 404,
-            statusText: "Not Found",
-            headers: {},
-            config: undefined,
-          },
-        };
-        jest.spyOn(axios, 'delete').mockRejectedValue(axiosError);
-        await expect(service.delete(invalid_role_id)).rejects.toThrowError(NotFoundException);
-      });
-
-      it('should return HttpException for any internal server error', async () => {
-        const errorResponseData = { message: 'Internal server error', status: HttpStatus.INTERNAL_SERVER_ERROR };
-        const axiosError: AxiosError = {
-          name: "AxiosError",
-          message: "Internal Server Error",
-          isAxiosError: true,
-          toJSON: () => ({}),
-          response: {
-            data: errorResponseData,
-            status: 500,
-            statusText: "Internal Server Error",
-            headers: {},
-            config: undefined,
-          },
-        };
-        jest.spyOn(axios, 'delete').mockRejectedValue(axiosError);
-        await expect(service.delete(valid_role_id)).rejects.toThrowError(HttpException);
-      });
-
-      it('should return BadRequestException for making a bad request', async () => {
-        const axiosError: AxiosError = {
-          name: "AxiosError",
-          message: "Request failed with status code 400",
-          isAxiosError: true,
-          toJSON: () => ({}),
-          response: {
-            data: {},
-            status: 400,
-            statusText: "Bad Request",
-            headers: {},
-            config: undefined,
-          },
-        };
-        jest.spyOn(axios, 'delete').mockRejectedValue(axiosError);
-        await expect(service.delete(invalid_role_id)).rejects.toThrowError(BadRequestException);
-      })
-
-      it('should return HttpException for any other error', async () => {
-        const errorResponseData = { message: 'Service Unavailable', status: HttpStatus.SERVICE_UNAVAILABLE };
-        const axiosError: AxiosError = {
-          name: "AxiosError",
-          message: "Network Error",
-          isAxiosError: true,
-          toJSON: () => ({}),
-          response: {
-            data: errorResponseData,
-            status: 503,
-            statusText: "Network Error",
-            headers: {},
-            config: undefined,
-          },
-        };
-        jest.spyOn(axios, 'delete').mockRejectedValue(axiosError);
-        await expect(service.delete(valid_role_id)).rejects.toThrowError(HttpException);
-      })
-
+  describe(("delete"), () => {
+    it('should delete a role', async () => {
+      jest.spyOn(axios, 'delete').mockResolvedValue(null);
+      const result = await service.delete(valid_role_id);
+      expect(result).toEqual(null);
     });
+
+    it('should return Forbidden exception if DAL server is not reachable', async () => {
+      jest.spyOn(axios, 'delete').mockRejectedValue(new ForbiddenException('API not available'));
+      await expect(service.delete(valid_role_id)).rejects.toThrowError(ForbiddenException);
+    });
+
+    it('should return NotFoundException for any other axios error', async () => {
+      const axiosError: AxiosError = {
+        name: "AxiosError",
+        message: "Request failed with status code 404",
+        isAxiosError: true,
+        toJSON: () => ({}),
+        response: {
+          data: {},
+          status: 404,
+          statusText: "Not Found",
+          headers: {},
+          config: undefined,
+        },
+      };
+      jest.spyOn(axios, 'delete').mockRejectedValue(axiosError);
+      await expect(service.delete(invalid_role_id)).rejects.toThrowError(NotFoundException);
+    });
+
+    it('should return HttpException for any internal server error', async () => {
+      const errorResponseData = { message: 'Internal server error', status: HttpStatus.INTERNAL_SERVER_ERROR };
+      const axiosError: AxiosError = {
+        name: "AxiosError",
+        message: "Internal Server Error",
+        isAxiosError: true,
+        toJSON: () => ({}),
+        response: {
+          data: errorResponseData,
+          status: 500,
+          statusText: "Internal Server Error",
+          headers: {},
+          config: undefined,
+        },
+      };
+      jest.spyOn(axios, 'delete').mockRejectedValue(axiosError);
+      await expect(service.delete(valid_role_id)).rejects.toThrowError(HttpException);
+    });
+
+    it('should return BadRequestException for making a bad request', async () => {
+      const axiosError: AxiosError = {
+        name: "AxiosError",
+        message: "Request failed with status code 400",
+        isAxiosError: true,
+        toJSON: () => ({}),
+        response: {
+          data: {},
+          status: 400,
+          statusText: "Bad Request",
+          headers: {},
+          config: undefined,
+        },
+      };
+      jest.spyOn(axios, 'delete').mockRejectedValue(axiosError);
+      await expect(service.delete(invalid_role_id)).rejects.toThrowError(BadRequestException);
+    })
+
+    it('should return HttpException for any other error', async () => {
+      const errorResponseData = { message: 'Service Unavailable', status: HttpStatus.SERVICE_UNAVAILABLE };
+      const axiosError: AxiosError = {
+        name: "AxiosError",
+        message: "Network Error",
+        isAxiosError: true,
+        toJSON: () => ({}),
+        response: {
+          data: errorResponseData,
+          status: 503,
+          statusText: "Network Error",
+          headers: {},
+          config: undefined,
+        },
+      };
+      jest.spyOn(axios, 'delete').mockRejectedValue(axiosError);
+      await expect(service.delete(valid_role_id)).rejects.toThrowError(HttpException);
+    })
   });
 });

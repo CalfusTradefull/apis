@@ -12,7 +12,7 @@ export class RoleService {
 
   async getRoles() {
     try {
-      this.logger.log(new Date(Date.now()).toLocaleString() + "Get Roles Call");
+      this.logger.log(new Date(Date.now()).toLocaleString() + "Get Roles");
       const response = await axios.get(this.appConfig.DAL_URL + 'roles');
       return response.data;
     } catch (error) {
@@ -22,6 +22,7 @@ export class RoleService {
 
   async getRole(roleid: string) {
     try {
+      this.logger.log(new Date(Date.now()).toLocaleString() + " Get Role: " + JSON.stringify(roleid));
       const response = await axios.get(this.appConfig.DAL_URL + 'roles/'.concat(roleid));
       return response.data;
     } catch (error) {
@@ -68,10 +69,10 @@ export class RoleService {
   // Used for error handling.
   private handleAxiosError(error: any): never {
     if (error instanceof ForbiddenException) {
-      throw new ForbiddenException("API not available");
+      throw new ForbiddenException('API not available');
     }
     if (!axios.isAxiosError(error)) {
-      throw new HttpException("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Internal server error', HttpStatus.INTERNAL_SERVER_ERROR);
     }
     const axiosError = error as AxiosError;
     if (axiosError.response) {
@@ -80,14 +81,13 @@ export class RoleService {
         case 400:
           throw new BadRequestException(axiosError.response.data);
         case 404:
-          throw new NotFoundException(`Role not found for the given roleid.`);
+          throw new NotFoundException('Role not found for the given roleid.');
         default:
-          throw new HttpException("Internal Server error", HttpStatus.INTERNAL_SERVER_ERROR);
+          throw new HttpException('Internal Server error', HttpStatus.INTERNAL_SERVER_ERROR);
       }
     } else {
-      throw new HttpException("Network error", HttpStatus.SERVICE_UNAVAILABLE);
+      throw new HttpException('Network error', HttpStatus.SERVICE_UNAVAILABLE);
     }
   }
-    
 }
 
