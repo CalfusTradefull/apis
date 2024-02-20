@@ -58,46 +58,23 @@ describe("CustomerService", () => {
   describe("getCustomerProfiles", () => {
     it("should return a array of customer profiles", async () => {
       jest
-        .spyOn(httpService, "get")
-        .mockReturnValue(
-          of({
-            data: mockProfile,
-            status: 200,
-            statusText: "OK",
-            headers: {},
-            config: {},
-          })
-        );
-      const result = await firstValueFrom((await service
-          .getProfiles())
-        .pipe(toArray())
-      );
+        .spyOn(axios, "get")
+        .mockResolvedValueOnce({data: [mockProfile]});
+      const result = await service.getProfiles()
       expect(result).toEqual([mockProfile]);
     });
 
     it("should handle API error and throw ForbiddenException", async () => {
-      jest
-        .spyOn(httpService, "get")
-        .mockReturnValueOnce(throwError(() => new ForbiddenException()));
-      expect(
-        firstValueFrom((await service.getProfiles()).pipe(toArray()))
-      ).rejects.toThrow(ForbiddenException);
+      jest.spyOn(axios, 'get').mockRejectedValue(new ForbiddenException('API not available'));
+      await expect(service.getProfiles()).rejects.toThrowError(ForbiddenException);
     });
   });
   
   describe("getProfileByProfileID", () => {
     it("should return a customer profile by profile id", async () => {
       jest
-        .spyOn(httpService, "get")
-        .mockReturnValue(
-          of({
-            data: mockProfile,
-            status: 200,
-            statusText: "OK",
-            headers: {},
-            config: {},
-          })
-        );
+        .spyOn(axios, "get")
+        .mockResolvedValue({ data: mockProfile });
       const profile_id = '78b8f457-6e1a-43af-be2e-460f356905fa';
       const result = await service.getProfileByProfileID(profile_id);
       expect(result).toEqual(mockProfile);
@@ -125,19 +102,10 @@ describe("CustomerService", () => {
   });
 
   describe("getProfileByCustomerID", () => {
-    const customer_id = 'CUST124';
+    const customer_id = 'CUST1234';
     it("should return a customer profile by customer id", async () => {
       jest
-        .spyOn(httpService, "get")
-        .mockReturnValue(
-          of({
-            data: mockProfile,
-            status: 200,
-            statusText: "OK",
-            headers: {},
-            config: {},
-          })
-        );
+        .spyOn(axios, "get").mockResolvedValueOnce({ data: mockProfile });
       const result = await service.getProfileByCustomerID(customer_id);
       expect(result).toEqual(mockProfile);
     });

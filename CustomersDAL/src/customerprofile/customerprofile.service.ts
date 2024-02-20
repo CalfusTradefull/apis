@@ -11,7 +11,11 @@ export class CustomerprofileService {
   ) {}
 
   async getAllCustomerProfile(): Promise<CustomerProfile[]> {
-    return this.customerProfileRepository.find();
+    try {
+      return this.customerProfileRepository.find();
+    } catch (error) {
+      throw new InternalServerErrorException('Error occurred while fetching roles');
+    }
   }
 
   async getCustomerProfileByProfileId(profile_id: string,): Promise<CustomerProfile> {
@@ -27,7 +31,6 @@ export class CustomerprofileService {
         if (error instanceof NotFoundException) {
           throw error;
         } else {
-          console.log(error);
           throw new InternalServerErrorException('Error while fetching customer profile');
         }
       }
@@ -48,7 +51,6 @@ export class CustomerprofileService {
         if (error instanceof NotFoundException) {
           throw error;
         } else {
-          console.log(error);
           throw new InternalServerErrorException('Error while fetching customer profile');
         }
       }
@@ -61,7 +63,7 @@ export class CustomerprofileService {
       const newProfile = await this.customerProfileRepository.create(profile);
       return await this.customerProfileRepository.save(newProfile);
     } catch (error) {
-      return error;
+      throw new InternalServerErrorException('Error occurred while creating customer profile', error);
     }
   }
 
@@ -72,7 +74,7 @@ export class CustomerprofileService {
     try {
       const result = await this.customerProfileRepository.update(profile_id, profile);
       if (result.affected === 0) {
-        throw new NotFoundException('No customer profile found with given profile_id!!');
+        throw new NotFoundException('No customer profile found with given profile_id!');
       }
       return await this.customerProfileRepository.findOne({where: { profile_id }});
     } catch (error) {
