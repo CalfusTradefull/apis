@@ -5,7 +5,6 @@ import { CustomerDTO } from "./customer.entity";
 import {
   BadRequestException,
   ForbiddenException,
-  InjectionToken,
   InternalServerErrorException,
   Logger,
   NotFoundException,
@@ -13,8 +12,6 @@ import {
 import { AppConfig } from "src/config/AppConfig";
 import { ClsService } from "nestjs-cls";
 import { HttpService } from "@nestjs/axios";
-import axios, { AxiosError } from "axios";
-import * as request from "supertest";
 
 const mockAppConfig = {
   DAL_URL: "https://example.com/",
@@ -270,6 +267,141 @@ describe("CustomerController", () => {
       expect(loggerSpy).toHaveBeenCalledWith(
         expect.stringContaining("Create Customer")
       );
+    });
+  });
+
+  /**
+   * Delete Customer
+   */
+
+  describe("update", () => {
+    const customerId = "valid_customer_id";
+    const updatedCustomer: Partial<CustomerDTO> = {
+      customer_brand_name: "ABC Brand",
+    };
+    const mockCustomersupdate: CustomerDTO = {
+      customer_name: "ABC Corporation",
+      customer_brand_name: "ABC Brand",
+      tf_customer_number: "TF123",
+      erp_account_number: "ERP456",
+      customer_type: "Business",
+      customer_status: "Active",
+      customer_category_id: "Category123",
+      tax_identifier_number: "TIN789",
+      customer_since_dt: "2022-01-01",
+      parent_customer_id: "Parent456",
+      doing_business_as: "ABC Corp",
+      retail_outlet_flg: true,
+      is_b2b_flg: true,
+      is_multi_brand_flg: true,
+      tier_id: "Tier1",
+      region_id: "Region123",
+      lifecycle_stage_id: "Stage456",
+      sic_code: "SIC789",
+      sic_code_type: "TypeA",
+      naics_code: "NAICS123",
+      naics_code_descr: "Description for NAICS123",
+      stock_ticker: "ABC",
+      logistics_fulfillment: {
+        pick_pack_ship: "Warehouse123",
+        ship_station: "ShipStation456",
+        wms: "WMS789",
+      },
+      cis_id: "CIS789",
+      duns_number: "DUNS456",
+      demandbase_id: "Demandbase789",
+      zoominfo_id: "ZoomInfo456",
+      expected_arr: "2022-02-01",
+      expected_gmv: "100000",
+      additional_customer_info: { key1: "value1", key2: "value2" },
+      created_by: "JohnDoe",
+      last_updated_by: "JaneDoe",
+    };
+    it("should update customer successfully", async () => {
+      jest
+        .spyOn(customerService, "update")
+        .mockResolvedValueOnce(mockCustomersupdate);
+
+      const result = await controller.update(customerId, updatedCustomer);
+
+      expect(result).toEqual(mockCustomersupdate);
+      expect(customerService.update).toHaveBeenCalledWith(
+        customerId,
+        updatedCustomer
+      );
+    });
+
+    it("should handle customer not found error", async () => {
+      const customerId = "non_existing_customer_id";
+
+      jest
+        .spyOn(customerService, "update")
+        .mockRejectedValueOnce(new NotFoundException("Customer not found"));
+
+      await expect(
+        controller.update(customerId, mockCustomersupdate)
+      ).rejects.toThrowError(NotFoundException);
+      expect(customerService.update).toHaveBeenCalledWith(
+        customerId,
+        mockCustomersupdate
+      );
+    });
+
+    it("should handle unexpected errors", async () => {
+      jest
+        .spyOn(customerService, "update")
+        .mockRejectedValueOnce(new Error("Unexpected error"));
+
+      await expect(
+        controller.update(customerId, mockCustomersupdate)
+      ).rejects.toThrowError("Unexpected error");
+      expect(customerService.update).toHaveBeenCalledWith(
+        customerId,
+        mockCustomersupdate
+      );
+    });
+  });
+
+  /**
+   * Delete
+   */
+
+  describe("delete", () => {
+    it("should delete customer successfully", async () => {
+      const customerId = "valid_customer_id";
+
+      jest.spyOn(customerService, "delete").mockResolvedValueOnce(200);
+
+      const result = await controller.delete(customerId);
+
+      expect(result).toEqual(200);
+      expect(customerService.delete).toHaveBeenCalledWith(customerId);
+    });
+
+    it("should handle customer not found error", async () => {
+      const customerId = "non_existing_customer_id";
+
+      jest
+        .spyOn(customerService, "delete")
+        .mockRejectedValueOnce(new NotFoundException("Customer not found"));
+
+      await expect(controller.delete(customerId)).rejects.toThrowError(
+        NotFoundException
+      );
+      expect(customerService.delete).toHaveBeenCalledWith(customerId);
+    });
+
+    it("should handle unexpected errors", async () => {
+      const customerId = "some_customer_id";
+
+      jest
+        .spyOn(customerService, "delete")
+        .mockRejectedValueOnce(new Error("Unexpected error"));
+
+      await expect(controller.delete(customerId)).rejects.toThrowError(
+        "Unexpected error"
+      );
+      expect(customerService.delete).toHaveBeenCalledWith(customerId);
     });
   });
 });

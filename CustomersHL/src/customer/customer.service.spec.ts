@@ -238,6 +238,7 @@ describe("CustomerService", () => {
       await expect(service.create(mockCustomerDTO)).rejects.toThrowError(
         HttpException
       );
+
       expect(axiosPostSpy).toHaveBeenCalledWith(
         expect.any(String),
         mockCustomerDTO,
