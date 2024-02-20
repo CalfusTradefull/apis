@@ -40,11 +40,6 @@ export class CustomerprofileController {
     description: 'The customer profile',
     type: CustomerProfile,
   })
-  @ApiParam({
-    name: 'type',
-    enum: 'profile_id',
-    type: 'string',
-  })
   @ApiParam({ name: 'id', type: 'string' })
   async getCustomerProfileByProfileId(
     @Param('id') profile_id: string,
@@ -53,6 +48,13 @@ export class CustomerprofileController {
   }
   
   @Get('/customerid/:id')
+  @ApiOperation({ summary: 'Get a customer profile by customer ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'The customer profile',
+    type: CustomerProfile,
+  })
+  @ApiParam({ name: 'id', type: 'string' })
   async getCustomerProfileByCustomerId(
     @Param('id') customer_id: string,
   ): Promise<CustomerProfile> {
