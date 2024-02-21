@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { InjectionToken, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 export const AppConfig = {

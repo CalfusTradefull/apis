@@ -29,7 +29,7 @@ export class CustomerprofileController {
     type: [CustomerProfile],
   })
   async getAllCustomerProfile(): Promise<CustomerProfile[]> {
-    return await this.customerProfileService.getAllCustomerProfile();
+    return this.customerProfileService.getAllCustomerProfile();
   }
 
   // Get one customer profile
@@ -40,34 +40,25 @@ export class CustomerprofileController {
     description: 'The customer profile',
     type: CustomerProfile,
   })
-  @ApiParam({
-    name: 'type',
-    enum: 'profile_id',
-    type: 'string',
-  })
   @ApiParam({ name: 'id', type: 'string' })
   async getCustomerProfileByProfileId(
     @Param('id') profile_id: string,
   ): Promise<CustomerProfile> {
-    try {
-      console.log('getCustomerProfileByProfileId | profile_id:', profile_id);
-      const result = this.customerProfileService.getCustomerProfileByProfileId(profile_id);
-      return result;
-    } catch (error) {
-      return error;
-    }
+      return this.customerProfileService.getCustomerProfileByProfileId(profile_id);
   }
   
   @Get('/customerid/:id')
+  @ApiOperation({ summary: 'Get a customer profile by customer ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'The customer profile',
+    type: CustomerProfile,
+  })
+  @ApiParam({ name: 'id', type: 'string' })
   async getCustomerProfileByCustomerId(
     @Param('id') customer_id: string,
   ): Promise<CustomerProfile> {
-    try {
-      console.log('getCustomerProfileByCustomerId | customer_id:', customer_id);
-      return this.customerProfileService.getCustomerProfileByCustomerId(customer_id);
-    } catch (error) {
-      return error;
-    }
+    return this.customerProfileService.getCustomerProfileByCustomerId(customer_id);
   }
 
   // Create customer profile
@@ -82,11 +73,7 @@ export class CustomerprofileController {
   async createCustomerProfile(
     @Body() profile: CustomerProfile,
   ): Promise<CustomerProfile> {
-    try {
-      return this.customerProfileService.createCustomerProfile(profile);
-    } catch (error) {
-      return error;
-    }
+    return this.customerProfileService.createCustomerProfile(profile);
   }
 
   @Put(':id')
@@ -103,16 +90,9 @@ export class CustomerprofileController {
   })
   async updateCustomerProfile(
     @Param('id') profile_id: string,
-    @Body() profile: CustomerProfile,
+    @Body() profile: Partial<CustomerProfile>,
   ): Promise<CustomerProfile> {
-    try {
-      return this.customerProfileService.updateCustomerProfile(
-        profile_id,
-        profile,
-      );
-    } catch (error) {
-      return error;
-    }
+    return this.customerProfileService.updateCustomerProfile(profile_id, profile);
   }
 
   // Delete customer profile
@@ -125,9 +105,8 @@ export class CustomerprofileController {
   })
   async deleteCustomerProfile(@Param('id') profile_id: string): Promise<void> {
     try {
-      console.log(profile_id);
       await this.customerProfileService.getCustomerProfileByProfileId(profile_id);
-      this.customerProfileService.deleteCustomerProfile(profile_id);
+      return this.customerProfileService.deleteCustomerProfile(profile_id);
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;

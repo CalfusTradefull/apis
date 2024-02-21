@@ -4,7 +4,7 @@ import { Logger } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CustomerProfileDTO } from './customerprofiledto';
 
-@ApiTags('Cusomer Profile')
+@ApiTags('Customer Profile')
 @Controller()
 export class CustomerProfileController {
   

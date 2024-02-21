@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CustomerprofileService } from './customerprofile.service';
 import { CustomerProfile } from './customerprofile.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { NotFoundException } from '@nestjs/common';
+import { Repository, UpdateResult } from 'typeorm';
+import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
 
 describe('CustomerprofileService', () => {
   let service: CustomerprofileService;
@@ -63,133 +63,86 @@ describe('CustomerprofileService', () => {
   };
 
   describe('createCustomerProfile', () => {
-    it('It should call service.createCustomerProfile', async () => {
-      jest
-        .spyOn(service, 'createCustomerProfile')
-        .mockResolvedValue(mockProfile);
-
+    it('It create Customer Profile', async () => {
+      jest.spyOn(customerProfileRepository, 'create').mockResolvedValueOnce(mockProfile as never);
+      jest.spyOn(customerProfileRepository, 'save').mockResolvedValueOnce(mockProfile);
       const result = await service.createCustomerProfile(mockProfile);
-      expect(service.createCustomerProfile).toHaveBeenCalledWith(mockProfile);
+      expect(customerProfileRepository.create).toHaveBeenCalledWith(mockProfile);
+      expect(customerProfileRepository.save).toHaveBeenCalledWith(result);
       expect(result).toEqual(mockProfile);
-    });
-
-    it('Should create customer profile using typeorm', async () => {
-      customerProfileRepository.create(mockProfile);
-      expect(customerProfileRepository.create).toHaveBeenCalledWith(
-        mockProfile,
-      );
-    });
-
-    it('Should save customer profile using typeorm', async () => {
-      customerProfileRepository.save(mockProfile);
-      expect(customerProfileRepository.save).toHaveBeenCalledWith(mockProfile);
     });
   });
 
   describe('getAllCustomerProfile', () => {
-    it('It should call service.getAllCustomerProfile', async () => {
-      jest
-        .spyOn(service, 'getAllCustomerProfile')
-        .mockResolvedValue([mockProfile]);
-
+    it('It should get all Customer Profiles', async () => {
+      jest.spyOn(customerProfileRepository, 'find').mockResolvedValue([mockProfile]);
       const result = await service.getAllCustomerProfile();
-      expect(service.getAllCustomerProfile).toHaveBeenCalled();
-      expect(result).toEqual([mockProfile]);
-    });
-
-    it('Should get the list of customer profiles', async () => {
-      customerProfileRepository.find();
       expect(customerProfileRepository.find).toHaveBeenCalled();
+      expect(result).toEqual([mockProfile]);
     });
   });
 
   describe('getCustomerProfileByProfileId', () => {
-    it('It should call service.getCustomerProfileByProfileId', async () => {
-      jest
-        .spyOn(service, 'getCustomerProfileByProfileId')
-        .mockResolvedValue(mockProfile);
+    it('It should get Customer Profile by profileid', async () => {
+      jest.spyOn(customerProfileRepository, 'findOne').mockResolvedValue(mockProfile);
       const profile_id = 'a123';
+      const mockData = {"where": {"profile_id": profile_id}}
       const result = await service.getCustomerProfileByProfileId(profile_id);
-      expect(service.getCustomerProfileByProfileId).toHaveBeenCalledWith(
-        profile_id,
-      );
+      expect(customerProfileRepository.findOne).toHaveBeenCalledWith(mockData);
       expect(result).toEqual(mockProfile);
     });
 
     it('Should handle the case where the profile is not found', async () => {
-      jest
-        .spyOn(service, 'getCustomerProfileByProfileId')
-        .mockResolvedValue(null);
-      const profile_id = 'nonexistent_id';
-      try {
-        await service.getCustomerProfileByProfileId(profile_id);
-      } catch (error) {
-        expect(error).toBeInstanceOf(NotFoundException);
-      }
+      jest.spyOn(customerProfileRepository, 'findOne').mockResolvedValue(null);
+      const profile_id = 'a123';
+      await expect(service.getCustomerProfileByProfileId(profile_id)).rejects.toThrowError(NotFoundException);
     });
 
-    it('Should get the customer profile', async () => {
-      const profile_id = 'abc123';
-      customerProfileRepository.findOne({
-        where: {
-          profile_id: profile_id,
-        },
-      });
-      expect(customerProfileRepository.findOne).toHaveBeenCalledWith({
-        where: {
-          profile_id: profile_id,
-        },
-      });
-    });
+    it("should throw InternalServerErrorException for other unexpected errors", async () => {
+      const unexpectedError = new Error('Error while fetching customer profile');
+      jest.spyOn(customerProfileRepository, 'findOne').mockRejectedValue(unexpectedError);
+      await expect(service.getCustomerProfileByProfileId('valid-id')).rejects.toThrowError(InternalServerErrorException);
+    })
+
   });
 
   describe('getCustomerProfileByCustomerId', () => {
-    it('It should call service.getCustomerProfileByCustomerId', async () => {
-      jest
-        .spyOn(service, 'getCustomerProfileByCustomerId')
-        .mockResolvedValue(mockProfile);
+    it('It should get Customer Profile by customerid', async () => {
+      jest.spyOn(customerProfileRepository, 'findOne').mockResolvedValue(mockProfile);
       const customer_id = 'a123';
+      const mockData = {"where": {"customer_id": customer_id}}
       const result = await service.getCustomerProfileByCustomerId(customer_id);
-      expect(service.getCustomerProfileByCustomerId).toHaveBeenCalledWith(
-        customer_id,
-      );
+      expect(customerProfileRepository.findOne).toHaveBeenCalledWith(mockData);
       expect(result).toEqual(mockProfile);
     });
 
     it('Should handle the case where the profile is not found', async () => {
-      jest
-        .spyOn(service, 'getCustomerProfileByCustomerId')
-        .mockResolvedValue(null);
-      const customer_id = 'nonexistent_id';
-      try {
-        await service.getCustomerProfileByCustomerId(customer_id);
-      } catch (error) {
-        expect(error).toBeInstanceOf(NotFoundException);
-      }
+      jest.spyOn(customerProfileRepository, 'findOne').mockResolvedValue(null);
+      const customer_id = 'a123';
+      await expect(service.getCustomerProfileByCustomerId(customer_id)).rejects.toThrowError(NotFoundException);
     });
 
-    it('Should get the customer profile', async () => {
-      const customer_id = 'abc123';
-      customerProfileRepository.findOne({
-        where: {
-          customer_id: customer_id,
-        },
-      });
-      expect(customerProfileRepository.findOne).toHaveBeenCalledWith({
-        where: {
-          customer_id: customer_id,
-        },
-      });
-    });
+    it("should throw InternalServerErrorException for other unexpected errors", async () => {
+      const unexpectedError = new Error('Error while fetching customer profile');
+      jest.spyOn(customerProfileRepository, 'findOne').mockRejectedValue(unexpectedError);
+      await expect(service.getCustomerProfileByCustomerId('valid-id')).rejects.toThrowError(InternalServerErrorException);
+    })
+
   });
 
   describe('deleteCustomerProfile', () => {
     it('It should call service.deleteCustomerProfile', async () => {
-      jest.spyOn(service, 'deleteCustomerProfile').mockResolvedValue(null);
+      jest.spyOn(customerProfileRepository, 'delete').mockResolvedValue(undefined);
       const profile_id = 'a123';
       const result = await service.deleteCustomerProfile(profile_id);
-      expect(service.deleteCustomerProfile).toHaveBeenCalledWith(profile_id);
-      expect(result).toEqual(null);
+      expect(customerProfileRepository.delete).toHaveBeenCalledWith(profile_id);
+      expect(result).toEqual(undefined);
+    });
+
+    it('It should return InternalServerErrorException for other unexpected errors', async () => {
+      const unexpectedError = new Error('Failed to delete customer profile');
+      jest.spyOn(customerProfileRepository, 'delete').mockRejectedValue(unexpectedError);
+      await expect(service.deleteCustomerProfile('valid-id')).rejects.toThrowError(Error);
     });
   });
 
@@ -208,48 +161,24 @@ describe('CustomerprofileService', () => {
       ...updateProfileData,
     };
 
-    it('It should call service.getCustomerProfileByProfileId', async () => {
-      jest
-        .spyOn(service, 'getCustomerProfileByProfileId')
-        .mockResolvedValue(mockProfile);
+    it('It should update Customer Profile using profileid and data', async () => {
+      jest.spyOn(customerProfileRepository, 'update').mockResolvedValue({ affected: 1 } as UpdateResult);
+      jest.spyOn(customerProfileRepository, 'findOne').mockResolvedValue(updatedMockProfile);
       const profile_id = 'a123';
-      const result = await service.getCustomerProfileByProfileId(profile_id);
-      expect(service.getCustomerProfileByProfileId).toHaveBeenCalledWith(
-        profile_id,
-      );
-      expect(result).toEqual(mockProfile);
+      const result = await service.updateCustomerProfile(profile_id, updateProfileData,);
+      expect(result).toEqual(updatedMockProfile);
     });
 
     it('Should handle the case where the profile is not found', async () => {
-      jest
-        .spyOn(service, 'getCustomerProfileByProfileId')
-        .mockResolvedValue(null);
-      const profile_id = 'nonexistent_id';
-      try {
-        await service.getCustomerProfileByProfileId(profile_id);
-      } catch (error) {
-        expect(error).toBeInstanceOf(NotFoundException);
-      }
-    });
-
-    it('It should call update method for service and typeorm', async () => {
-      jest
-        .spyOn(customerProfileRepository, 'update')
-        .mockResolvedValue({} as never);
-
-      jest
-        .spyOn(service, 'updateCustomerProfile')
-        .mockResolvedValue(updatedMockProfile);
+      jest.spyOn(customerProfileRepository, 'update').mockResolvedValue({ affected: 0 } as UpdateResult);
       const profile_id = 'a123';
-      const result = await service.updateCustomerProfile(
-        profile_id,
-        updateProfileData,
-      );
-      expect(service.updateCustomerProfile).toHaveBeenCalledWith(
-        profile_id,
-        updateProfileData,
-      );
-      expect(result).toEqual(updatedMockProfile);
+      await expect(service.updateCustomerProfile(profile_id, updateProfileData)).rejects.toThrowError(NotFoundException);
     });
+
+    it("should throw InternalServerErrorException for other unexpected errors", async () => {
+      const unexpectedError = new Error('Failed to update customer profile');
+      jest.spyOn(customerProfileRepository, 'update').mockRejectedValue(unexpectedError);
+      await expect(service.updateCustomerProfile('valid-id', updateProfileData)).rejects.toThrowError(InternalServerErrorException);
+    })
   });
 });
